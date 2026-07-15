@@ -61,3 +61,35 @@ class ConsoleView:
             return
         for sample in samples:
             print(f"{sample.sample_id} | {sample.name} | 재고: {sample.stock_qty}")
+
+    def get_new_order_input(self) -> dict:
+        sample_id = input("시료 ID: ")
+        customer_name = input("고객명: ")
+        quantity = int(input("주문 수량: "))
+        return {
+            "sample_id": sample_id,
+            "customer_name": customer_name,
+            "quantity": quantity,
+        }
+
+    def show_order_created(self, order) -> None:
+        print(f"주문이 접수되었습니다: {order.order_id} ({order.status.value})")
+
+    def show_pending_orders(self, orders: list) -> None:
+        if not orders:
+            print("접수된 주문이 없습니다")
+            return
+        for order in orders:
+            print(f"{order.order_id} | {order.sample_id} | {order.customer_name} | 수량: {order.quantity}")
+
+    def get_order_id_to_process(self) -> str:
+        return input("처리할 주문 ID: ").strip()
+
+    def get_approval_decision(self) -> str:
+        return input("1. 승인  2. 거절: ").strip()
+
+    def show_order_approved(self, order) -> None:
+        print(f"주문이 승인되었습니다: {order.order_id} ({order.status.value})")
+
+    def show_order_rejected(self, order) -> None:
+        print(f"주문이 거절되었습니다: {order.order_id} ({order.status.value})")
