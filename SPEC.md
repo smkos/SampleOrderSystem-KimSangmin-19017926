@@ -100,3 +100,19 @@ storage/
 - `RESERVED`가 아닌 주문에 대한 승인/거절 시도 → 거부.
 - `CONFIRMED`가 아닌 주문에 대한 출고 시도 → 거부.
 - 저장 파일 동시 수정 충돌 시 `ConflictError` 발생, 데이터 유실 없이 재시도 유도 (`DataPersistence_PoC` 패턴).
+
+## 6. 테스트/Mock 전략
+
+`test-driven-development` 스킬의 원칙("mock은 외부 경계에서만") 을 이 프로젝트의 계층 구조에
+적용하면 다음과 같이 나뉜다.
+
+| 계층 | 외부 경계 여부 | Mock 사용 |
+|------|----------------|-----------|
+| `model/` (Sample, Order, production_queue 계산) | 아니오 — 순수 로직 | 실제 객체로 직접 테스트, mock 사용 안 함 |
+| `controller/` (Model↔View 중개) | 아니오 — 내부 협력 | 실제 Model/View를 조합해 테스트. View 대신 테스트용 stub view만 필요 시 사용 |
+| `storage/*_repository.py` (파일 I/O) | **예** — 파일시스템 | `pytest-mock`의 `mocker`로 파일시스템 호출(예: 쓰기 실패, 동시성 충돌 상황)을 격리 테스트. 정상 경로는 임시 디렉터리(`tmp_path`)를 이용한 실제 파일 I/O로 검증 |
+| `view/console_view.py` (콘솔 입출력) | **예** — 표준 입출력 | `pytest-mock`으로 `input`/`print` 등 콘솔 I/O를 mock |
+| `Order.created_at` 생성, 생산 큐 FIFO 정렬 기준 시각 | **예** — 시스템 시각 | `pytest-mock`으로 시각 생성 함수를 mock해 결정적으로 테스트 |
+
+내부 모듈 간 호출(Model↔Controller 등)을 mock하기 시작하면 결합도가 과도하다는 신호이므로,
+그 경우 mock을 늘리기보다 설계(의존성 주입 등)를 먼저 점검한다.
