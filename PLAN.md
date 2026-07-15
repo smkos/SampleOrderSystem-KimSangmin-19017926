@@ -28,7 +28,13 @@
 | 13 | 콘솔 View 골격 + 메인 메뉴 요약 정보 + 시료 관리 메뉴 | GREEN 완료 | [plan/cycle-13-console-view-sample-menu.md](plan/cycle-13-console-view-sample-menu.md) |
 | 14 | 시료 주문 메뉴 + 주문 승인/거절 메뉴 | GREEN 완료 | [plan/cycle-14-console-view-order-menus.md](plan/cycle-14-console-view-order-menus.md) |
 | 15 | 모니터링 메뉴 + 생산 라인 메뉴 (현황/대기 큐/생산완료 처리) | GREEN 완료 | [plan/cycle-15-console-view-monitoring-production-menus.md](plan/cycle-15-console-view-monitoring-production-menus.md) |
-| 16 | 출고 처리 메뉴 + `main.py` 진입점 (전체 조립, 마지막 사이클) | RED (검토 대기) | [plan/cycle-16-order-release-menu-main-entrypoint.md](plan/cycle-16-order-release-menu-main-entrypoint.md) |
+| 16 | 출고 처리 메뉴 + `main.py` 진입점 (전체 조립, 원래 계획상 마지막 사이클) | GREEN 완료 | [plan/cycle-16-order-release-menu-main-entrypoint.md](plan/cycle-16-order-release-menu-main-entrypoint.md) |
+| 17 | 더미 시료(Sample) 데이터 생성기 (`DummyDataGenerator_PoC` 이식) | RED (검토 대기) | [plan/cycle-17-dummy-sample-generator.md](plan/cycle-17-dummy-sample-generator.md) |
+
+> **로드맵 확장**: Cycle 16이 `PRD.md`/`SPEC.md` 기능 명세 기준으로는 원래 마지막 사이클이었으나,
+> 사람 파트너의 요청으로 테스트/데모용 더미 데이터 생성기(`CLAUDE.md`가 재사용 대상으로 명시한
+> `DummyDataGenerator_PoC` 이식)를 Cycle 17로 추가해 로드맵을 확장했다. 더미 `Order` 생성,
+> 저장 wrapper, 콘솔 메뉴 연동 등은 Cycle 17 이후 별도 사이클로 이어질 수 있다.
 
 > Cycle 4 이후는 개략적인 이름만 미리 적어 둔 것이며, 실제 진행하면서 범위가 나뉘거나 순서가
 > 바뀔 수 있다. 각 사이클의 상세 계획(목표/범위/예시 테스트)은 직전 사이클이 끝난 뒤에야
