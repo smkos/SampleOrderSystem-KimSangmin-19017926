@@ -107,8 +107,14 @@ def _run_production_menu(view, production_controller) -> None:
         view.show_production_menu()
         choice = view.get_production_menu_choice()
         if choice == "1":
-            view.show_current_production(production_controller.current_production_order())
-            view.show_production_queue(production_controller.list_production_queue())
+            detail = production_controller.current_production_detail()
+            if detail is None:
+                view.show_current_production(None)
+            else:
+                view.show_current_production(
+                    detail["order"], detail["shortage"], detail["actual_production_qty"]
+                )
+            view.show_production_queue(production_controller.waiting_production_queue())
         elif choice == "2":
             try:
                 order_id = view.get_order_id_to_complete()

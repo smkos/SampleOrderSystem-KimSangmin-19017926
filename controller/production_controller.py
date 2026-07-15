@@ -41,3 +41,19 @@ class ProductionController:
     def current_production_order(self):
         queue = self.list_production_queue()
         return queue[0] if queue else None
+
+    def current_production_detail(self) -> dict | None:
+        order = self.current_production_order()
+        if order is None:
+            return None
+        sample = next(
+            sample for sample in self._sample_registry.list_all()
+            if sample.sample_id == order.sample_id
+        )
+        shortage = production_queue.calculate_shortage(order.quantity, sample.stock_qty)
+        actual_qty = production_queue.calculate_actual_production_qty(shortage, sample.yield_rate)
+        return {"order": order, "shortage": shortage, "actual_production_qty": actual_qty}
+
+    def waiting_production_queue(self) -> list:
+        queue = self.list_production_queue()
+        return queue[1:]

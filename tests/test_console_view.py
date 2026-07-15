@@ -312,6 +312,20 @@ def test_현재_생산중인_주문_정보를_출력한다(capsys):
     assert "삼성전자 파운드리" in out
 
 
+def test_현재_생산중인_주문_정보와_부족분_실생산량을_함께_출력한다(capsys):
+    view = ConsoleView()
+    order = Order(
+        "ORD-20260715-0001", "S-001", "삼성전자 파운드리", 200,
+        OrderStatus.PRODUCING, "2026-07-15T09:00:00",
+    )
+
+    view.show_current_production(order, shortage=190, actual_production_qty=207)
+
+    out = capsys.readouterr().out
+    assert "190" in out
+    assert "207" in out
+
+
 def test_현재_생산중인_주문이_없으면_안내_메시지를_출력한다(capsys):
     view = ConsoleView()
 

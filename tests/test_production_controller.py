@@ -150,3 +150,75 @@ def test_생산_큐가_비어있으면_현재_생산중인_주문은_없다(tmp_
     production_controller = ProductionController(order_registry, sample_registry, order_repo, sample_repo)
 
     assert production_controller.current_production_order() is None
+
+
+def test_대기_큐는_현재_생산중인_주문을_제외한다(tmp_path, mocker):
+    sample_registry = SampleRegistry()
+    sample_registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 10))
+    order_registry = OrderRegistry()
+    order_repo = OrderRepository(tmp_path / "orders.json")
+    sample_repo = SampleRepository(tmp_path / "samples.json")
+    order_controller = OrderController(order_registry, sample_registry, order_repo, sample_repo)
+
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 0, 0))
+    first = order_controller.create_order("S-001", "삼성전자 파운드리", 200)
+    order_controller.approve_order(first.order_id)
+
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 5, 0))
+    second = order_controller.create_order("S-001", "SK하이닉스", 300)
+    order_controller.approve_order(second.order_id)
+
+    production_controller = ProductionController(order_registry, sample_registry, order_repo, sample_repo)
+
+    waiting = production_controller.waiting_production_queue()
+
+    assert [order.order_id for order in waiting] == [second.order_id]
+
+
+def test_대기_큐에_주문이_하나뿐이면_대기_큐는_빈다(tmp_path, mocker):
+    sample_registry = SampleRegistry()
+    sample_registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 10))
+    order_registry = OrderRegistry()
+    order_repo = OrderRepository(tmp_path / "orders.json")
+    sample_repo = SampleRepository(tmp_path / "samples.json")
+    order_controller = OrderController(order_registry, sample_registry, order_repo, sample_repo)
+
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 0, 0))
+    order = order_controller.create_order("S-001", "삼성전자 파운드리", 200)
+    order_controller.approve_order(order.order_id)
+
+    production_controller = ProductionController(order_registry, sample_registry, order_repo, sample_repo)
+
+    assert production_controller.waiting_production_queue() == []
+
+
+def test_현재_생산중인_주문의_부족분과_실생산량을_계산한다(tmp_path, mocker):
+    sample_registry = SampleRegistry()
+    sample_registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 10))
+    order_registry = OrderRegistry()
+    order_repo = OrderRepository(tmp_path / "orders.json")
+    sample_repo = SampleRepository(tmp_path / "samples.json")
+    order_controller = OrderController(order_registry, sample_registry, order_repo, sample_repo)
+
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 0, 0))
+    order = order_controller.create_order("S-001", "삼성전자 파운드리", 200)
+    order_controller.approve_order(order.order_id)  # 재고 10 < 200 -> PRODUCING
+
+    production_controller = ProductionController(order_registry, sample_registry, order_repo, sample_repo)
+
+    detail = production_controller.current_production_detail()
+
+    assert detail["order"].order_id == order.order_id
+    assert detail["shortage"] == 190  # 200 - 10
+    import math
+    assert detail["actual_production_qty"] == math.ceil(190 / 0.92)
+
+
+def test_생산_큐가_비어있으면_현재_생산_상세정보는_없다(tmp_path):
+    sample_registry = SampleRegistry()
+    order_registry = OrderRegistry()
+    order_repo = OrderRepository(tmp_path / "orders.json")
+    sample_repo = SampleRepository(tmp_path / "samples.json")
+    production_controller = ProductionController(order_registry, sample_registry, order_repo, sample_repo)
+
+    assert production_controller.current_production_detail() is None

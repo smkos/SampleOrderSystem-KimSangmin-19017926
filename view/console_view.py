@@ -120,11 +120,13 @@ class ConsoleView:
     def get_production_menu_choice(self) -> str:
         return input("메뉴를 선택하세요: ").strip()
 
-    def show_current_production(self, order) -> None:
+    def show_current_production(self, order, shortage=None, actual_production_qty=None) -> None:
         if order is None:
             print("현재 생산 중인 주문이 없습니다")
             return
         print(f"{order.order_id} | {order.sample_id} | {order.customer_name} | 수량: {order.quantity}")
+        if shortage is not None and actual_production_qty is not None:
+            print(f"  부족분: {shortage} | 실 생산량(수율 반영): {actual_production_qty}")
 
     def show_production_queue(self, orders: list) -> None:
         if not orders:
