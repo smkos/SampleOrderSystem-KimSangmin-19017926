@@ -286,3 +286,13 @@ def test_거절하면_REJECTED로_전환된다(mocker):
   `view/` 관련 코드는 포함하지 않았다. `model/order.py`, `model/sample.py`,
   `model/sample_registry.py`, `storage/order_repository.py`, `storage/sample_repository.py`,
   `controller/sample_controller.py`는 수정되지 않았다.
+
+**추가 재설계** (Cycle 10 GREEN 완료 이후, 상세는
+[plan/cycle-07-09-10-stock-reservation.md](cycle-07-09-10-stock-reservation.md) 참고): 두
+개의 `CONFIRMED` 주문이 재고를 두고 경쟁하다 나중 출고가 실패하는 결함이 발견되어, 재고
+차감 시점을 "출고 시점"에서 "`CONFIRMED` 전이 시점"으로 옮기는 재설계가 이뤄졌다. 이에 따라
+`OrderController.approve_order()`는 재고 충분 시 `order_registry.approve()`로 `CONFIRMED`
+전환에 성공한 직후 `sample_registry.decrease_stock(sample_id, order.quantity)`를 호출해 그
+주문 몫을 즉시 예약(차감)하도록 바뀌었다. 재고 부족으로 `PRODUCING`이 되는 경로는 이전과
+동일하게 재고를 건드리지 않는다. 이 사이클에서 구현한 `OrderRegistry.approve()`(상태 전이
+로직 자체)는 변경되지 않았다 — 바뀐 것은 컨트롤러가 호출하는 시점/순서뿐이다.

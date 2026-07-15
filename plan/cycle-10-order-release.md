@@ -292,3 +292,20 @@ def test_재고가_부족하면_출고처리시_예외가_발생하고_상태와
   않았다. `model/order.py`, `model/sample.py`, `model/production_queue.py`,
   `controller/production_controller.py`, `controller/sample_controller.py`,
   `storage/order_repository.py`, `storage/sample_repository.py`는 수정되지 않았다.
+
+**추가 재설계** (Cycle 10 GREEN 완료 이후, 상세는
+[plan/cycle-07-09-10-stock-reservation.md](cycle-07-09-10-stock-reservation.md) 참고): 같은
+시료를 참조하는 두 개의 `CONFIRMED` 주문이 재고를 두고 경쟁하다 나중에 출고하는 쪽이 재고
+부족으로 실패하는 결함이 발견되어, 재고 차감 시점을 승인/생산완료(`CONFIRMED` 전이) 시점으로
+옮기는 재설계가 이뤄졌다. 그 결과 `OrderController.release_order()`에서 재고 확인
+(`sample.stock_qty < order.quantity` 체크)과 `sample_registry.decrease_stock()` 호출이
+완전히 제거되고, 이제 `order_registry.release(order_id)` 호출 하나로만 구성된 순수 상태
+전이로 단순화됐다 — 출고 시점에는 이미 `CONFIRMED` 전이 시점에 예약이 끝나 있어 재고를
+다시 확인하거나 변경할 필요가 없기 때문이다. 이에 따라 이 사이클에서 작성했던
+`test_재고가_부족하면_출고처리시_예외가_발생하고_상태와_재고가_바뀌지_않는다` 테스트는
+재설계 이후 발생 불가능한 시나리오(모든 `CONFIRMED` 주문은 이미 예약을 마친 상태)를
+전제로 한 것이 되어 **완전히 제거**됐다(재설계 전에는 유효했던 테스트). 대신 두 개의
+`CONFIRMED` 주문을 순서대로 출고해도 재고 경쟁 없이 둘 다 성공함을 증명하는 회귀 테스트
+(`test_두_CONFIRMED_주문을_순서대로_출고해도_둘_다_성공한다`)가 추가됐다. 이 사이클에서
+구현한 `OrderRegistry.release()`와 `SampleRegistry.decrease_stock()`(메서드 자체)은
+변경되지 않았다 — `decrease_stock`은 승인/생산완료 쪽에서 계속 사용된다.
