@@ -1,3 +1,4 @@
+from model.order import Order, OrderStatus
 from model.sample import Sample
 from view.console_view import ConsoleView
 
@@ -119,3 +120,114 @@ def test_검색_결과가_없으면_안내_메시지를_출력한다(capsys):
 
     out = capsys.readouterr().out
     assert "검색 결과가 없습니다" in out
+
+
+def test_시료_주문_입력을_순서대로_받아_dict로_반환한다(mocker):
+    mocker.patch(
+        "builtins.input",
+        side_effect=["S-001", "삼성전자 파운드리", "200"],
+    )
+    view = ConsoleView()
+
+    result = view.get_new_order_input()
+
+    assert result == {
+        "sample_id": "S-001",
+        "customer_name": "삼성전자 파운드리",
+        "quantity": 200,
+    }
+
+
+def test_주문_생성_결과를_출력한다(capsys):
+    view = ConsoleView()
+    order = Order(
+        "ORD-20260715-0001", "S-001", "삼성전자 파운드리", 200,
+        OrderStatus.RESERVED, "2026-07-15T09:32:15",
+    )
+
+    view.show_order_created(order)
+
+    out = capsys.readouterr().out
+    assert "ORD-20260715-0001" in out
+    assert "RESERVED" in out
+
+
+def test_접수된_주문_목록을_출력한다(capsys):
+    view = ConsoleView()
+    orders = [
+        Order(
+            "ORD-20260715-0001", "S-001", "삼성전자 파운드리", 200,
+            OrderStatus.RESERVED, "2026-07-15T09:32:15",
+        ),
+    ]
+
+    view.show_pending_orders(orders)
+
+    out = capsys.readouterr().out
+    assert "ORD-20260715-0001" in out
+    assert "삼성전자 파운드리" in out
+
+
+def test_접수된_주문이_없으면_안내_메시지를_출력한다(capsys):
+    view = ConsoleView()
+
+    view.show_pending_orders([])
+
+    out = capsys.readouterr().out
+    assert "접수된 주문이 없습니다" in out
+
+
+def test_처리할_주문_ID_입력을_받는다(mocker):
+    mocker.patch("builtins.input", side_effect=["ORD-20260715-0001"])
+    view = ConsoleView()
+
+    assert view.get_order_id_to_process() == "ORD-20260715-0001"
+
+
+def test_승인_거절_선택_입력을_받는다(mocker):
+    mocker.patch("builtins.input", side_effect=["1"])
+    view = ConsoleView()
+
+    assert view.get_approval_decision() == "1"
+
+
+def test_승인_처리_결과를_출력한다(capsys):
+    view = ConsoleView()
+    order = Order(
+        "ORD-20260715-0001", "S-001", "삼성전자 파운드리", 200,
+        OrderStatus.CONFIRMED, "2026-07-15T09:32:15",
+    )
+
+    view.show_order_approved(order)
+
+    out = capsys.readouterr().out
+    assert "ORD-20260715-0001" in out
+    assert "CONFIRMED" in out
+
+
+def test_승인_처리_결과가_PRODUCING이면_그대로_표시한다(capsys):
+    view = ConsoleView()
+    order = Order(
+        "ORD-20260715-0002", "S-001", "삼성전자 파운드리", 200,
+        OrderStatus.PRODUCING, "2026-07-15T09:32:15",
+    )
+
+    view.show_order_approved(order)
+
+    out = capsys.readouterr().out
+    assert "ORD-20260715-0002" in out
+    assert "PRODUCING" in out
+
+
+def test_거절_처리_결과를_출력한다(capsys):
+    view = ConsoleView()
+    order = Order(
+        "ORD-20260715-0001", "S-001", "삼성전자 파운드리", 200,
+        OrderStatus.REJECTED, "2026-07-15T09:32:15",
+    )
+
+    view.show_order_rejected(order)
+
+    out = capsys.readouterr().out
+    assert "ORD-20260715-0001" in out
+    assert "REJECTED" in out
