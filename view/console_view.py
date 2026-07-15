@@ -108,8 +108,8 @@ class ConsoleView:
             print(f"{status.value}: {count}")
 
     def show_stock_status(self, labels: dict) -> None:
-        for sample_id, label in labels.items():
-            print(f"{sample_id}: {label}")
+        for sample_id, info in labels.items():
+            print(f"{sample_id} | {info['label']} (재고: {info['stock_qty']})")
 
     def show_production_menu(self) -> None:
         print("=== 생산 라인 ===")
