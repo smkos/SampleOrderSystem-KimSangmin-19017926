@@ -1,6 +1,6 @@
 [← PLAN.md 인덱스로 돌아가기](../PLAN.md)
 
-# Cycle 8 — 생산 큐 계산 로직 (부족분/실생산량/총생산시간, FIFO)
+# Cycle 8 — 생산 큐 계산 로직 (부족분/실생산량/총생산시간, FIFO) (GREEN 완료)
 
 **이전 사이클**: [Cycle 7 — 주문 승인/거절 (재고 확인 → CONFIRMED/PRODUCING/REJECTED)](cycle-07-order-approval.md)
 **다음 사이클**: 아직 계획되지 않음
@@ -179,8 +179,24 @@ def test_생산큐_정렬은_원본_리스트를_변경하지_않는다():
     assert orders == [order_a, order_b]
 ```
 
-## 검토 요청
+## 진행 결과
 
-이 목표/범위로 RED 단계를 진행해도 될지 검토 부탁드립니다. 특히 위 "설계 판단" 2번(원시값
-시그니처 vs `Sample`/`Order` 객체 시그니처)과 3번(개별 계산 함수로 나눌지, 요약 함수까지 이번
-사이클에 포함할지)에 이견이 있으면 RED 단계 착수 전에 알려주시기 바랍니다.
+- **RED** (`861b6bc` 생산 큐 계산 로직 실패 테스트 작성): 위 7개 테스트를
+  `tests/test_production_queue.py`에 작성해 실패를 확인했다.
+- **GREEN** (`7067dd6` 생산 큐 계산 로직 최소 구현): `model/production_queue.py`에 계획대로
+  `calculate_shortage`, `calculate_actual_production_qty`,
+  `calculate_total_production_time_min`, `sort_production_queue` 4개 순수 함수를 구현했다.
+- **verify-agent 독립 검증에서 결함 발견**: `SampleRegistry.register()`가 `SPEC.md` §1.1의
+  `0 < yield_rate <= 1` 제약을 검증하지 않아, `yield_rate=0`인 시료가 등록되면
+  `calculate_actual_production_qty()`에서 `ZeroDivisionError`가 날 수 있는 문제였다. 이는
+  Cycle 8이 새로 만든 결함이 아니라 Cycle 1부터 있던 기존 갭이 이번에 처음 실질적 영향(0으로
+  나누기)으로 드러난 것이다. 사람 파트너와 논의한 결과, 이 갭은 Cycle 1 범위에 별도의 미니
+  RED→GREEN(`fbf1773`/`bd1d67c`)으로 보완하기로 했다(상세 내용은
+  [Cycle 1 문서](cycle-01-sample-registration.md) 참고).
+- **최종 결과**: `tests/test_production_queue.py`의 7개 테스트가 모두 통과하며, 전체 테스트
+  48개(yield_rate 검증 보완 이전 기준. 보완 이후에는 51개)가 회귀 없이 통과한다.
+- **범위 준수 확인**: 계획대로 `controller/production_controller.py`, 생산완료/출고 처리,
+  `view/` 관련 코드는 포함하지 않았다. `model/order.py`, `model/sample.py`,
+  `model/order_registry.py`, `model/sample_registry.py`(생산 큐 계산 자체와는 무관),
+  `controller/order_controller.py`, `controller/sample_controller.py`는 이 사이클에서
+  수정되지 않았다.

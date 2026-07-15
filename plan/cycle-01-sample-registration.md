@@ -11,6 +11,14 @@
 등록·중복 ID 거부·공백 이름 거부를 구현했다. `tests/test_sample_registry.py`의 3개 테스트가
 모두 통과한다. JSON 영속화, 조회/검색 메뉴, View/Controller 연동은 다음 사이클들로 넘긴다.
 
+**추가 보완** (`fbf1773` RED → `bd1d67c` GREEN): Cycle 8(생산 큐 계산 로직) verify-agent
+검증 과정에서, `SampleRegistry.register()`가 `SPEC.md` §1.1의 `0 < yield_rate <= 1` 제약을
+검증하지 않아 `yield_rate=0`인 시료가 등록되면 생산량 계산 시 `ZeroDivisionError`가 날 수
+있는 기존 갭이 발견되어, 이 사이클 범위에 검증 로직을 보완했다. 위반 시(0 이하 또는 1 초과)
+`ValueError`를 던지도록 했고, `tests/test_sample_registry.py`에 3개 테스트
+(`test_수율이_0이면_등록을_거부한다`, `test_수율이_1보다_크면_등록을_거부한다`,
+`test_수율이_음수이면_등록을_거부한다`)를 추가했다.
+
 ## 지금까지의 진행 상황 (컨텍스트)
 
 이 사이클 이전에 구현된 것은 없다. `SPEC.md`를 기준으로 진행하는 최초 사이클이며, 이후 모든
