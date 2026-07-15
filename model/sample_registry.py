@@ -12,6 +12,8 @@ class SampleRegistry:
             raise ValueError(f"이미 등록된 시료 ID입니다: {sample.sample_id}")
         if not sample.name.strip():
             raise ValueError("시료명은 공백일 수 없습니다.")
+        if not (0 < sample.yield_rate <= 1):
+            raise ValueError(f"수율은 0보다 크고 1 이하여야 합니다: {sample.yield_rate}")
         self._samples.append(sample)
 
     def list_all(self) -> list[Sample]:
