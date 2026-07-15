@@ -96,6 +96,8 @@ storage/
 - **총 생산 시간(분)** = `avg_production_time_min * 실 생산량`
 - **재고 상태 라벨** (모니터링): `stock_qty == 0` → 고갈, `stock_qty < 미승인 주문 총수량` → 부족, 그 외 → 여유
 - **생산 큐 정렬**: `PRODUCING` 상태 주문을 `created_at` 오름차순(FIFO)으로 정렬
+- **생산 완료 시 재고 반영**: `PRODUCING → CONFIRMED` 전이(생산 완료 처리) 시, 그 시점에 재계산한
+  실 생산량만큼 `Sample.stock_qty`가 증가한다 (`SampleRegistry.increase_stock`).
 
 ## 5. 에러/검증 규칙
 
