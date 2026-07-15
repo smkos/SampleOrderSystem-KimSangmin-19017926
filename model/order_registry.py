@@ -57,3 +57,10 @@ class OrderRegistry:
             raise ValueError(f"PRODUCING 상태의 주문만 생산완료 처리할 수 있습니다: {order_id}")
         order.status = OrderStatus.CONFIRMED
         return order
+
+    def release(self, order_id: str) -> Order:
+        order = self.get(order_id)
+        if order.status != OrderStatus.CONFIRMED:
+            raise ValueError(f"CONFIRMED 상태의 주문만 출고 처리할 수 있습니다: {order_id}")
+        order.status = OrderStatus.RELEASE
+        return order

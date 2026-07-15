@@ -26,3 +26,15 @@ class OrderController:
 
     def reject_order(self, order_id: str) -> Order:
         return self._order_registry.reject(order_id)
+
+    def release_order(self, order_id: str) -> Order:
+        order = self._order_registry.get(order_id)
+        sample = next(
+            sample for sample in self._sample_registry.list_all()
+            if sample.sample_id == order.sample_id
+        )
+        if sample.stock_qty < order.quantity:
+            raise ValueError(f"재고가 부족하여 출고할 수 없습니다: {order_id}")
+        released = self._order_registry.release(order_id)
+        self._sample_registry.decrease_stock(sample.sample_id, order.quantity)
+        return released
