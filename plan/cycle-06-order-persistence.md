@@ -3,7 +3,7 @@
 # Cycle 6 — 주문 영속화 (`OrderRepository`) (GREEN 완료)
 
 **이전 사이클**: [Cycle 5 — 주문 모델 + 접수(RESERVED)](cycle-05-order-reservation.md)
-**다음 사이클**: 아직 계획되지 않음
+**다음 사이클**: [Cycle 7 — 주문 승인/거절](cycle-07-order-approval.md)
 
 ## 지금까지의 진행 상황 (컨텍스트)
 
