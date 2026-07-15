@@ -395,3 +395,27 @@ str, "stock_qty": int}}`)로 바꾸고, `ConsoleView.show_stock_status()`가
 정의한 형태(`dict[str, str]`)와 다르므로, `plan/cycle-11-monitoring-aggregation.md`에도
 상호 참조 각주를 남겼다. 관련 테스트(`test_시료별_재고상태_라벨을_계산한다`,
 `test_재고_상태를_출력한다`) assertion을 갱신했고, 전체 테스트 142개가 회귀 없이 통과했다.
+
+**핫픽스** (Cycle 18 이후, 계획 문서 없는 애드혹 수정 — 커밋 `d1fef8a`): 사람 파트너가
+`python main.py`로 "생산 라인 → 생산 현황 조회"를 직접 실행해보다가 두 가지 문제를
+발견했다.
+
+1. **중복 표시**: `_run_production_menu`가 "현재 생산 중"(`current_production_order()`,
+   큐 선두)과 "대기 큐"(`list_production_queue()`, 선두 포함 전체)를 각각 표시하다 보니,
+   큐에 주문이 하나뿐이면 같은 주문이 두 번 출력됐다. 이는 Cycle 15 설계 판단 3번("대기
+   큐는 큐 전체(선두 포함)를 그대로 보여준다")이 스스로 "확인 필요"로 남겨뒀던 지점이 실제
+   불편으로 드러난 것이다. `ProductionController.waiting_production_queue()`(선두를 제외한
+   나머지)를 신설해 대기 큐 표시에는 이 메서드를 쓰도록 바꿨다(설계 판단 3번을 사실상
+   뒤집는 결정).
+2. **실 생산량 미표시**: 부족분/수율을 반영한 실 생산량 계산 자체(`production_queue.
+   calculate_shortage`/`calculate_actual_production_qty`, Cycle 8/9)는 정확했으나, 화면
+   어디에도 이 숫자를 보여주지 않아 수율이 실제로 반영되는지 사용자가 확인할 방법이 없었다.
+   `ProductionController.current_production_detail()`(주문/부족분/실 생산량을 함께 반환)을
+   신설하고, `ConsoleView.show_current_production(order, shortage=None,
+   actual_production_qty=None)`에 선택적 인자를 추가해 "현재 생산 중" 표시에 부족분과 실
+   생산량을 함께 보여주도록 했다(기존 호출부와 하위 호환 유지).
+
+`tests/test_production_controller.py`에 4개, `tests/test_console_view.py`에 1개 테스트를
+추가했고, 전체 테스트 152개가 회귀 없이 통과했다. `main.py`로 직접 재현해 두 문제 모두
+해결됐음을 확인했다(재고 10/수율 0.5/주문 100 시나리오에서 "부족분: 90 | 실 생산량(수율
+반영): 180"이 정확히 표시되고, 대기 큐는 더 이상 중복 표시되지 않음).
