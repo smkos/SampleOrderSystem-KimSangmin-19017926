@@ -24,8 +24,8 @@
 | 9 | 생산 완료 처리 (PRODUCING → CONFIRMED) | GREEN 완료 | [plan/cycle-09-production-completion.md](plan/cycle-09-production-completion.md) |
 | 10 | 출고 처리 (CONFIRMED → RELEASE) | GREEN 완료 | [plan/cycle-10-order-release.md](plan/cycle-10-order-release.md) |
 | 11 | 모니터링 집계 (상태별 주문 수, 재고 상태 라벨) | GREEN 완료 | [plan/cycle-11-monitoring-aggregation.md](plan/cycle-11-monitoring-aggregation.md) |
-| 12 | 주문/생산 컨트롤러 영속화 연동 (`OrderController`/`ProductionController` ↔ Repository) | RED (검토 대기) | [plan/cycle-12-order-controller-persistence.md](plan/cycle-12-order-controller-persistence.md) |
-| 13 | 콘솔 View 골격 + 메인 메뉴 요약 정보 + 시료 관리 메뉴 | 미계획 | - |
+| 12 | 주문/생산 컨트롤러 영속화 연동 (`OrderController`/`ProductionController` ↔ Repository) | GREEN 완료 | [plan/cycle-12-order-controller-persistence.md](plan/cycle-12-order-controller-persistence.md) |
+| 13 | 콘솔 View 골격 + 메인 메뉴 요약 정보 + 시료 관리 메뉴 | RED (검토 대기) | [plan/cycle-13-console-view-sample-menu.md](plan/cycle-13-console-view-sample-menu.md) |
 | 14 | 시료 주문 메뉴 + 주문 승인/거절 메뉴 | 미계획 | - |
 | 15 | 모니터링 메뉴 + 생산 라인 메뉴 (현황/대기 큐/생산완료 처리) | 미계획 | - |
 | 16 | 출고 처리 메뉴 + `main.py` 진입점 (전체 조립, 마지막 사이클) | 미계획 | - |
