@@ -1,6 +1,6 @@
 [← PLAN.md 인덱스로 돌아가기](../PLAN.md)
 
-# Cycle 11 — 모니터링 집계 (상태별 주문 수, 재고 상태 라벨)
+# Cycle 11 — 모니터링 집계 (상태별 주문 수, 재고 상태 라벨) (GREEN 완료)
 
 **이전 사이클**: [Cycle 10 — 출고 처리 (CONFIRMED → RELEASE)](cycle-10-order-release.md)
 **다음 사이클**: 아직 계획되지 않음
@@ -278,10 +278,33 @@ def test_시료별_재고상태_라벨을_계산한다(mocker):
     assert labels["S-002"] == "고갈"  # 재고 0
 ```
 
-## 검토 요청
+## 진행 결과
 
-이 목표/범위로 RED 단계를 진행해도 될지 검토 부탁드립니다. 특히 (a) 순수 계산 로직을
-`model/monitoring.py`(신규)에 두는 판단(설계 판단 1번), (b) "미승인 주문 총수량"을
-`RESERVED` 상태 주문만으로 해석하는 판단(설계 판단 2번 — 가장 이견이 있을 수 있는 지점),
-(c) `REJECTED`를 집계 딕셔너리에서 키 자체를 제외하는 반환 형태(설계 판단 3번)에 대해 이견이
-있으면 알려주시기 바랍니다.
+- **RED** (`b8c700f` Cycle 11 RED: 모니터링 집계 실패 테스트 작성): 위 예시 테스트를
+  `tests/test_monitoring.py`(7개 신규), `tests/test_monitoring_controller.py`(3개 신규)에
+  작성해 실패를 확인했다.
+- **GREEN** (`2802116` Cycle 11 GREEN: 모니터링 집계 최소 구현): 계획대로
+  `model/monitoring.py`에 `count_orders_by_status()`, `sum_pending_order_qty()`,
+  `calculate_stock_status_label()`을, `controller/monitoring_controller.py`에
+  `MonitoringController.count_orders_by_status()`, `MonitoringController.
+  stock_status_by_sample()`을 구현했다.
+- **설계 판단 채택 여부**: 계획 문서의 세 가지 설계 판단(순수 계산 로직을
+  `model/monitoring.py`에 두는 판단, "미승인 주문 총수량"을 `RESERVED` 상태 주문만으로
+  해석하는 판단, `REJECTED`를 집계 딕셔너리에서 키 자체를 제외하는 반환 형태)은 사람 파트너
+  검토를 거쳐 이견 없이 그대로 채택됐다.
+- **verify-agent 독립 검증**: `REJECTED` 완전 제외, 재고 상태 라벨 공식 일치, RED→GREEN
+  전환을 `git stash` 재현으로 확인했고 문제 없음을 확인했다.
+- **최종 결과**: `tests/test_monitoring.py`(7개) + `tests/test_monitoring_controller.py`
+  (3개) = 10개 테스트가 모두 통과하며, Cycle 1~10을 포함한 전체 테스트 81개가 회귀 없이
+  통과한다.
+- **범위 준수 확인**: 계획대로 `view/` 관련 코드, 저장소 연동, 생산 큐 실제 연결은 포함하지
+  않았다.
+- **참고 — Cycle 7·9·10 재고 예약 재설계와의 관계** (상세는
+  [plan/cycle-07-09-10-stock-reservation.md](cycle-07-09-10-stock-reservation.md) 참고):
+  Cycle 11 GREEN 완료 직후 별도로 진행된 재고 예약 재설계로 인해, 이제 `Sample.stock_qty`는
+  이미 `CONFIRMED` 주문 몫이 예약(차감)된 값을 의미하게 됐다. 이는 `sum_pending_order_qty`가
+  `RESERVED` 상태 주문만 합산하는 해석(설계 판단 2번)과 오히려 더 잘 맞아떨어진다 —
+  `CONFIRMED`로 전환된 주문은 이미 재고에서 빠져 있으므로 "미승인(`RESERVED`) 주문 대비 남은
+  재고"라는 지표가 더 정확해졌다. 이 재설계로 인해 `model/monitoring.py`,
+  `controller/monitoring_controller.py` 코드 자체를 수정할 필요는 없었다(실제로 수정하지
+  않았다).
