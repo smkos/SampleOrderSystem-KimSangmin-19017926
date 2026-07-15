@@ -1,14 +1,14 @@
 [← PLAN.md 인덱스로 돌아가기](../PLAN.md)
 
-# Cycle 7·9·10 재설계 — 재고 예약(승인/생산완료 시점 즉시 차감) 방식으로 전환
+# Cycle 7·9·10 재설계 — 재고 예약(승인/생산완료 시점 즉시 차감) 방식으로 전환 (GREEN 완료)
 
 **관련 사이클(수정 대상)**: [Cycle 7 — 주문 승인/거절](cycle-07-order-approval.md),
 [Cycle 9 — 생산 완료 처리](cycle-09-production-completion.md),
 [Cycle 10 — 출고 처리](cycle-10-order-release.md)
-**이 재설계가 놓이는 위치**: Cycle 10 GREEN 완료 이후, Cycle 11(모니터링 집계, 현재 RED
-검토 대기) GREEN 진행 이전. **새 사이클이 아니라 이미 GREEN 완료된 Cycle 7·9·10의 재고 처리
-동작 자체를 고치는 작업**이므로 `PLAN.md` 사이클 목록에는 새 행을 추가하지 않는다(대신
-`PLAN.md`에 이 문서로의 짧은 각주만 남긴다).
+**이 재설계가 놓이는 위치**: Cycle 11(모니터링 집계) GREEN 완료 이후, Cycle 12 진행 이전.
+**새 사이클이 아니라 이미 GREEN 완료된 Cycle 7·9·10의 재고 처리 동작 자체를 고치는 작업**이므로
+`PLAN.md` 사이클 목록에는 새 행을 추가하지 않는다(대신 `PLAN.md`에 이 문서로의 짧은 각주만
+남긴다).
 
 ## 지금까지의 진행 상황 (컨텍스트)
 
@@ -271,4 +271,27 @@ def test_생산완료_처리하면_재고가_실생산량에서_주문수량을_
     assert updated_sample.stock_qty == expected_stock
 ```
 
-이 재설계/범위로 RED 단계를 진행해도 될지 검토 부탁드립니다.
+## 진행 결과
+
+- **계획** (`3416049` 재고 예약 재설계 계획): 위 설계 판단대로 재설계 범위를 확정했다.
+- **RED** (`b4972ec` 재고 예약 재설계 RED): `tests/test_order_controller.py`에서 승인 시
+  즉시 예약, 재고 부족 시 미예약, 출고 시 재고 불변을 검증하는 테스트로 assertion을
+  갱신·추가하고, "재고 부족 시 출고 거부"(재설계 후 발생 불가능한 시나리오) 테스트를
+  제거했다. `tests/test_production_controller.py`도 생산완료 시 순증가(`실 생산량 - 주문
+  수량`)를 검증하도록 갱신했다. 회귀 테스트(`test_두_CONFIRMED_주문을_순서대로_출고해도_둘_다_성공한다`)는
+  합계가 재고를 초과하는 수치를 사용해, 재설계 이전 구현에서 실제로 실패함을 확인했다.
+- **GREEN** (`15ebf24` 재고 예약 재설계 GREEN): `OrderController.approve_order()`가 재고
+  충분 시 `CONFIRMED` 전환 직후 `sample_registry.decrease_stock()`으로 즉시 예약하도록,
+  `ProductionController.complete_production()`이 `increase_stock()` 뒤에
+  `decrease_stock(order.quantity)`를 추가로 호출하도록, `OrderController.release_order()`는
+  재고 확인/차감 로직을 제거하고 순수 상태 전이만 하도록 구현했다. `OrderRegistry`,
+  `SampleRegistry`의 메서드 자체는 변경하지 않았다(설계 판단 4번대로).
+- **SPEC.md 갱신** (`0f7297b`): §4에 "승인 시 재고 반영" 규칙을 추가하고, "생산 완료 시 재고
+  반영"/"출고 시 재고 반영" 규칙을 재설계에 맞게 수정했다.
+- **verify-agent 검증**: 순증가 공식(`actual_qty - shortage >= 0`)이 코드에서도 성립함을
+  `decrease_stock`/`increase_stock`이 동일 객체를 in-place로 갱신하는 것까지 대조해 확인했고,
+  `git stash` 재현으로 RED→GREEN 전환도 확인했다.
+- **최종 결과**: 전체 테스트 81개가 회귀 없이 통과한다.
+- **범위 준수**: `model/order_registry.py`, `model/sample_registry.py`, `model/order.py`,
+  `model/sample.py`, `model/production_queue.py`, `controller/sample_controller.py`,
+  `controller/monitoring_controller.py`, `model/monitoring.py`, `storage/*`는 수정되지 않았다.

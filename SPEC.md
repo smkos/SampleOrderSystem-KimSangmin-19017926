@@ -49,6 +49,7 @@ model/
   order.py               # Order, OrderStatus — 데이터와 상태만 보관
   order_registry.py       # OrderRegistry — 인메모리 생성/채번(ORD-YYYYMMDD-NNNN)/검증
   production_queue.py     # 생산 큐 계산 로직 (순수 함수: 부족분/실생산량/총생산시간)
+  monitoring.py            # 모니터링 집계 로직 (순수 함수: 상태별 주문 수, 재고 상태 라벨)
 view/
   console_view.py         # 메뉴별 입출력
 controller/
