@@ -9,8 +9,12 @@ class SampleController:
     def __init__(self, registry: SampleRegistry, repository: SampleRepository):
         self._registry = registry
         self._repository = repository
+        self._duplicate_sample_ids: list[str] = []
         for sample in self._repository.load():
-            self._registry.register(sample)
+            try:
+                self._registry.register(sample)
+            except ValueError:
+                self._duplicate_sample_ids.append(sample.sample_id)
 
     def register_sample(self, sample: Sample):
         self._registry.register(sample)
@@ -18,3 +22,6 @@ class SampleController:
 
     def list_samples(self) -> list[Sample]:
         return self._registry.list_all()
+
+    def duplicate_sample_ids(self) -> list[str]:
+        return list(self._duplicate_sample_ids)
