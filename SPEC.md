@@ -98,6 +98,9 @@ storage/
 - **생산 큐 정렬**: `PRODUCING` 상태 주문을 `created_at` 오름차순(FIFO)으로 정렬
 - **생산 완료 시 재고 반영**: `PRODUCING → CONFIRMED` 전이(생산 완료 처리) 시, 그 시점에 재계산한
   실 생산량만큼 `Sample.stock_qty`가 증가한다 (`SampleRegistry.increase_stock`).
+- **출고 시 재고 반영**: `CONFIRMED → RELEASE` 전이(출고 처리) 시, `Sample.stock_qty`가 주문
+  수량(`quantity`)만큼 감소한다 (`SampleRegistry.decrease_stock`). 재고가 부족하면(감소 후
+  `stock_qty`가 0 미만이 되면) 출고를 거부하고 상태·재고 모두 변경하지 않는다.
 
 ## 5. 에러/검증 규칙
 
