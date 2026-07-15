@@ -30,3 +30,23 @@ class OrderRegistry:
 
     def list_all(self) -> list[Order]:
         return list(self._orders)
+
+    def get(self, order_id: str) -> Order:
+        for order in self._orders:
+            if order.order_id == order_id:
+                return order
+        raise ValueError(f"존재하지 않는 주문 ID입니다: {order_id}")
+
+    def approve(self, order_id: str, stock_sufficient: bool) -> Order:
+        order = self.get(order_id)
+        if order.status != OrderStatus.RESERVED:
+            raise ValueError(f"RESERVED 상태의 주문만 승인할 수 있습니다: {order_id}")
+        order.status = OrderStatus.CONFIRMED if stock_sufficient else OrderStatus.PRODUCING
+        return order
+
+    def reject(self, order_id: str) -> Order:
+        order = self.get(order_id)
+        if order.status != OrderStatus.RESERVED:
+            raise ValueError(f"RESERVED 상태의 주문만 거절할 수 있습니다: {order_id}")
+        order.status = OrderStatus.REJECTED
+        return order

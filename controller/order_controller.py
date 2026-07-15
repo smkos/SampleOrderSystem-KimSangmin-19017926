@@ -14,3 +14,15 @@ class OrderController:
         if not any(sample.sample_id == sample_id for sample in self._sample_registry.list_all()):
             raise ValueError(f"존재하지 않는 시료 ID입니다: {sample_id}")
         return self._order_registry.create(sample_id, customer_name, quantity)
+
+    def approve_order(self, order_id: str) -> Order:
+        order = self._order_registry.get(order_id)
+        sample = next(
+            sample for sample in self._sample_registry.list_all()
+            if sample.sample_id == order.sample_id
+        )
+        stock_sufficient = order.quantity <= sample.stock_qty
+        return self._order_registry.approve(order_id, stock_sufficient)
+
+    def reject_order(self, order_id: str) -> Order:
+        return self._order_registry.reject(order_id)
