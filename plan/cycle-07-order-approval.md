@@ -1,9 +1,9 @@
 [← PLAN.md 인덱스로 돌아가기](../PLAN.md)
 
-# Cycle 7 — 주문 승인/거절 (재고 확인 → CONFIRMED/PRODUCING/REJECTED)
+# Cycle 7 — 주문 승인/거절 (재고 확인 → CONFIRMED/PRODUCING/REJECTED) (GREEN 완료)
 
 **이전 사이클**: [Cycle 6 — 주문 영속화 (`OrderRepository`)](cycle-06-order-persistence.md)
-**다음 사이클**: 아직 계획되지 않음
+**다음 사이클**: [Cycle 8 — 생산 큐 계산 로직 (부족분/실생산량/총생산시간, FIFO)](cycle-08-production-queue.md)
 
 ## 지금까지의 진행 상황 (컨텍스트)
 
@@ -261,8 +261,28 @@ def test_거절하면_REJECTED로_전환된다(mocker):
     assert rejected.status == OrderStatus.REJECTED
 ```
 
-## 검토 요청
+## 진행 결과
 
-이 목표/범위로 RED 단계를 진행해도 될지 검토 부탁드립니다. 특히 위 "설계 판단" 1~3번(책임
-분리, 존재하지 않는 `order_id` 처리, `Order` 상태의 제자리 변경 방식)에 이견이 있으면 RED 단계
-착수 전에 알려주시기 바랍니다.
+- **계획** (`0f18283` Cycle 7 계획: 주문 승인/거절 (재고 확인 → CONFIRMED/PRODUCING/REJECTED)):
+  위 "설계 판단" 1~3번(`OrderRegistry`/`OrderController` 책임 분리, 존재하지 않는 `order_id` →
+  `ValueError`, `Order` 상태의 제자리 변경 방식)을 사람 파트너 검토를 거쳐 이견 없이 그대로
+  채택했다.
+- **RED** (`53488b7` Cycle 7 RED: 주문 승인/거절 실패 테스트 작성): 위 예시 테스트대로
+  `tests/test_order_registry.py`(6개 신규)와 `tests/test_order_controller.py`(3개 신규)를
+  작성해 실패를 확인했다.
+- **GREEN** (`0608d9a` Cycle 7 GREEN: 주문 승인/거절 최소 구현): `model/order_registry.py`에
+  `OrderRegistry.get/approve/reject`를, `controller/order_controller.py`에
+  `OrderController.approve_order/reject_order`를 계획대로 구현했다. `approve`/`reject`는
+  대상 주문이 `RESERVED`가 아니면 `ValueError`를 던지고 상태를 바꾸지 않으며, `Order` 상태는
+  리스트에서 찾은 객체의 `status` 필드를 직접 변경(mutate)하는 방식으로 구현했다.
+- **verify-agent 독립 검증**: `Order` 상태 제자리 변경이 실제로 참조 일관되게 동작하는지
+  (`get()`이 반환한 실제 객체의 필드를 직접 변경하는지), 그리고 예외가 상태 변경보다 먼저
+  발생하는지(`RESERVED`가 아닌 주문을 승인/거절 시도할 때 상태가 바뀌지 않는지) 코드를 직접
+  대조해 확인했고 문제 없음을 확인했다.
+- **최종 결과**: `tests/test_order_registry.py`(6개 신규) + `tests/test_order_controller.py`
+  (3개 신규) = 9개 테스트가 모두 통과하며, Cycle 1~6을 포함한 전체 테스트 41개가 회귀 없이
+  통과한다.
+- **범위 준수 확인**: 계획대로 생산 큐 계산, 생산완료/출고 처리, `OrderRepository` 연동,
+  `view/` 관련 코드는 포함하지 않았다. `model/order.py`, `model/sample.py`,
+  `model/sample_registry.py`, `storage/order_repository.py`, `storage/sample_repository.py`,
+  `controller/sample_controller.py`는 수정되지 않았다.

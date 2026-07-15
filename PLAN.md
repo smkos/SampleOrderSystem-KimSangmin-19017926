@@ -19,8 +19,8 @@
 | 4 | 시료 검색 | GREEN 완료 | [plan/cycle-04-sample-search.md](plan/cycle-04-sample-search.md) |
 | 5 | 주문 모델 + 접수(RESERVED) | GREEN 완료 | [plan/cycle-05-order-reservation.md](plan/cycle-05-order-reservation.md) |
 | 6 | 주문 영속화 (`OrderRepository`) | GREEN 완료 | [plan/cycle-06-order-persistence.md](plan/cycle-06-order-persistence.md) |
-| 7 | 주문 승인/거절 (재고 확인 → CONFIRMED/PRODUCING/REJECTED) | RED (검토 대기) | [plan/cycle-07-order-approval.md](plan/cycle-07-order-approval.md) |
-| 8 | 생산 큐 계산 로직 (부족분/실생산량/총생산시간, FIFO) | 미계획 | - |
+| 7 | 주문 승인/거절 (재고 확인 → CONFIRMED/PRODUCING/REJECTED) | GREEN 완료 | [plan/cycle-07-order-approval.md](plan/cycle-07-order-approval.md) |
+| 8 | 생산 큐 계산 로직 (부족분/실생산량/총생산시간, FIFO) | RED (검토 대기) | [plan/cycle-08-production-queue.md](plan/cycle-08-production-queue.md) |
 | 9 | 생산 완료 처리 (PRODUCING → CONFIRMED) | 미계획 | - |
 | 10 | 출고 처리 (CONFIRMED → RELEASE) | 미계획 | - |
 | 11 | 모니터링 집계 | 미계획 | - |
