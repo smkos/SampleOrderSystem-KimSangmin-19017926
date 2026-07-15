@@ -3,7 +3,7 @@
 # Cycle 3 — 시료 컨트롤러 연동 (GREEN 완료)
 
 **이전 사이클**: [Cycle 2 — 시료 영속화](cycle-02-sample-persistence.md)
-**다음 사이클**: 아직 계획되지 않음
+**다음 사이클**: [Cycle 4 — 시료 검색](cycle-04-sample-search.md)
 
 ## 지금까지의 진행 상황 (컨텍스트)
 
@@ -118,4 +118,4 @@ def test_등록_검증에_실패하면_저장소를_변경하지_않는다(tmp_p
 
 ---
 
-**다음 사이클**: 아직 계획되지 않음
+**다음 사이클**: [Cycle 4 — 시료 검색](cycle-04-sample-search.md)
