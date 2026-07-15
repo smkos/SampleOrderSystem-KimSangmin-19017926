@@ -6,6 +6,8 @@ from model.sample import Sample
 _NAME_PREFIXES = ["실리콘 웨이퍼", "GaN 에피택셜", "SiC 파워소자", "GaAs RF소자"]
 _NAME_SUFFIXES = ["4인치", "6인치", "8인치", "12인치"]
 
+_CUSTOMER_NAME_CANDIDATES = ["삼성전자 파운드리", "SK하이닉스", "TSMC코리아", "DB하이텍"]
+
 _SAMPLE_ID_PATTERN = re.compile(r"^S-(\d+)$")
 
 
@@ -48,3 +50,20 @@ def generate_dummy_samples(count: int, existing_samples: list, rng: random.Rando
         all_samples.append(sample)
         generated.append(sample)
     return generated
+
+
+def generate_dummy_order_input(existing_samples: list, rng: random.Random | None = None) -> dict:
+    if not existing_samples:
+        raise ValueError("existing_samples는 비어 있을 수 없습니다.")
+
+    if rng is None:
+        rng = random.Random()
+
+    sample = rng.choice(existing_samples)
+    customer_name = rng.choice(_CUSTOMER_NAME_CANDIDATES)
+    quantity = rng.randint(1, 500)
+    return {
+        "sample_id": sample.sample_id,
+        "customer_name": customer_name,
+        "quantity": quantity,
+    }
