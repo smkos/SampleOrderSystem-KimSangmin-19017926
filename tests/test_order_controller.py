@@ -8,6 +8,85 @@ from model.order import OrderStatus
 from model.order_registry import OrderRegistry
 from model.sample import Sample
 from model.sample_registry import SampleRegistry
+from storage.order_repository import OrderRepository
+from storage.sample_repository import SampleRepository
+
+
+def _mock_now(mocker, fixed_datetime):
+    mocker.patch("model.order_registry.datetime").datetime.now.return_value = fixed_datetime
+
+
+def _controller(tmp_path, sample_registry):
+    return OrderController(
+        OrderRegistry(),
+        sample_registry,
+        OrderRepository(tmp_path / "orders.json"),
+        SampleRepository(tmp_path / "samples.json"),
+    )
+
+
+def test_생성시_주문_저장소의_기존_주문을_레지스트리에_불러온다(tmp_path, mocker):
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 32, 15))
+    sample_registry = SampleRegistry()
+    sample_registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
+    seed_controller = _controller(tmp_path, sample_registry)
+    seed_controller.create_order("S-001", "삼성전자 파운드리", 200)
+
+    restarted = OrderController(
+        OrderRegistry(),
+        sample_registry,
+        OrderRepository(tmp_path / "orders.json"),
+        SampleRepository(tmp_path / "samples.json"),
+    )
+
+    assert len(restarted.list_orders()) == 1
+
+
+def test_주문_생성에_성공하면_주문_저장소에도_반영된다(tmp_path, mocker):
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 32, 15))
+    sample_registry = SampleRegistry()
+    sample_registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
+    controller = _controller(tmp_path, sample_registry)
+
+    controller.create_order("S-001", "삼성전자 파운드리", 200)
+
+    reloaded = OrderRepository(tmp_path / "orders.json").load()
+    assert len(reloaded) == 1
+
+
+def test_승인시_재고가_예약되면_주문저장소와_시료저장소_모두_반영된다(tmp_path, mocker):
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 32, 15))
+    sample_registry = SampleRegistry()
+    sample_registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
+    sample_repo_path = tmp_path / "samples.json"
+    SampleRepository(sample_repo_path).save(sample_registry.list_all())
+    controller = OrderController(
+        OrderRegistry(),
+        sample_registry,
+        OrderRepository(tmp_path / "orders.json"),
+        SampleRepository(sample_repo_path),
+    )
+    order = controller.create_order("S-001", "삼성전자 파운드리", 200)
+
+    controller.approve_order(order.order_id)
+
+    reloaded_orders = OrderRepository(tmp_path / "orders.json").load()
+    reloaded_samples = SampleRepository(sample_repo_path).load()
+    assert reloaded_orders[0].status.value == "CONFIRMED"
+    assert reloaded_samples[0].stock_qty == 280  # 480 - 200 즉시 예약, 파일에도 반영
+
+
+def test_주문_생성_검증에_실패하면_저장소를_변경하지_않는다(tmp_path, mocker):
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 32, 15))
+    sample_registry = SampleRegistry()
+    sample_registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
+    controller = _controller(tmp_path, sample_registry)
+
+    with pytest.raises(ValueError):
+        controller.create_order("S-001", "   ", 200)  # 공백 고객명 → 거부
+
+    reloaded = OrderRepository(tmp_path / "orders.json").load()
+    assert reloaded == []  # 실패 시 파일 변경 없음
 
 
 def test_등록되지_않은_시료ID로_주문하면_거부한다(mocker):
