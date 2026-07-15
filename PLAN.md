@@ -15,7 +15,7 @@
 |-------|------|------|------|
 | 1 | 시료 등록 | GREEN 완료 | [plan/cycle-01-sample-registration.md](plan/cycle-01-sample-registration.md) |
 | 2 | 시료 영속화 | GREEN 완료 | [plan/cycle-02-sample-persistence.md](plan/cycle-02-sample-persistence.md) |
-| 3 | 시료 컨트롤러 연동 | RED (검토 대기) | [plan/cycle-03-sample-controller.md](plan/cycle-03-sample-controller.md) |
+| 3 | 시료 컨트롤러 연동 | GREEN 완료 | [plan/cycle-03-sample-controller.md](plan/cycle-03-sample-controller.md) |
 | 4 | 시료 검색 | 미계획 | - |
 | 5 | 주문 모델 + 접수(RESERVED) | 미계획 | - |
 | 6 | 주문 영속화 (`OrderRepository`) | 미계획 | - |

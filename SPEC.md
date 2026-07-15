@@ -50,7 +50,7 @@ model/
 view/
   console_view.py         # 메뉴별 입출력
 controller/
-  sample_controller.py    # 시료 등록/조회/검색
+  sample_controller.py    # 시료 등록/조회/검색, 저장소 연동 및 손상 데이터(중복 ID) 처리
   order_controller.py     # 주문 생성, 승인/거절, 출고 처리
   monitoring_controller.py # 상태별 주문 수, 재고 현황 집계
   production_controller.py # 생산 라인 현황, 대기 큐 조회
@@ -100,6 +100,9 @@ storage/
 - `RESERVED`가 아닌 주문에 대한 승인/거절 시도 → 거부.
 - `CONFIRMED`가 아닌 주문에 대한 출고 시도 → 거부.
 - 저장 파일 동시 수정 충돌 시 `ConflictError` 발생, 데이터 유실 없이 재시도 유도 (`DataPersistence_PoC` 패턴).
+- 저장 파일(`samples.json`)이 손상되어 동일한 `sample_id`가 중복 저장되어 있으면, `SampleController`는
+  예외를 던지지 않고 먼저 로드된 항목만 유지하며 나머지 중복 항목은 건너뛴다. 건너뛴 `sample_id`
+  목록은 `duplicate_sample_ids()`로 조회할 수 있다 (콘솔 View 연동 시 사용자 안내에 활용 예정).
 
 ## 6. 테스트/Mock 전략
 
