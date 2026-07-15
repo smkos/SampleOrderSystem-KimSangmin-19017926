@@ -25,3 +25,6 @@ class SampleController:
 
     def duplicate_sample_ids(self) -> list[str]:
         return list(self._duplicate_sample_ids)
+
+    def search_samples(self, keyword: str) -> list[Sample]:
+        return self._registry.find_by_name(keyword)
