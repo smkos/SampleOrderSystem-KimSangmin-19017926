@@ -93,3 +93,48 @@ class ConsoleView:
 
     def show_order_rejected(self, order) -> None:
         print(f"주문이 거절되었습니다: {order.order_id} ({order.status.value})")
+
+    def show_monitoring_menu(self) -> None:
+        print("=== 모니터링 ===")
+        print("1. 주문량 확인")
+        print("2. 재고량 확인")
+        print("3. 뒤로 가기")
+
+    def get_monitoring_menu_choice(self) -> str:
+        return input("메뉴를 선택하세요: ").strip()
+
+    def show_order_counts(self, counts: dict) -> None:
+        for status, count in counts.items():
+            print(f"{status.value}: {count}")
+
+    def show_stock_status(self, labels: dict) -> None:
+        for sample_id, label in labels.items():
+            print(f"{sample_id}: {label}")
+
+    def show_production_menu(self) -> None:
+        print("=== 생산 라인 ===")
+        print("1. 생산 현황 조회")
+        print("2. 생산완료 처리")
+        print("3. 뒤로 가기")
+
+    def get_production_menu_choice(self) -> str:
+        return input("메뉴를 선택하세요: ").strip()
+
+    def show_current_production(self, order) -> None:
+        if order is None:
+            print("현재 생산 중인 주문이 없습니다")
+            return
+        print(f"{order.order_id} | {order.sample_id} | {order.customer_name} | 수량: {order.quantity}")
+
+    def show_production_queue(self, orders: list) -> None:
+        if not orders:
+            print("대기 중인 생산 주문이 없습니다")
+            return
+        for order in orders:
+            print(f"{order.order_id} | {order.sample_id} | {order.customer_name} | 수량: {order.quantity}")
+
+    def get_order_id_to_complete(self) -> str:
+        return input("생산완료 처리할 주문 ID: ").strip()
+
+    def show_production_completed(self, order) -> None:
+        print(f"생산이 완료되었습니다: {order.order_id} ({order.status.value})")

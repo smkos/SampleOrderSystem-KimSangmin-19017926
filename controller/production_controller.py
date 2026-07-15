@@ -34,3 +34,10 @@ class ProductionController:
         self._order_repository.save(self._order_registry.list_all())
         self._sample_repository.save(self._sample_registry.list_all())
         return order
+
+    def list_production_queue(self) -> list:
+        return production_queue.sort_production_queue(self._order_registry.list_all())
+
+    def current_production_order(self):
+        queue = self.list_production_queue()
+        return queue[0] if queue else None
