@@ -11,23 +11,35 @@
 ```bash
 source .venv/bin/activate
 
-# 더미 시료 10개를 samples.json에 생성
+# 더미 시료 10개와 더미 주문 5개를 samples.json/orders.json에 생성
 python -c "
 from pathlib import Path
-from devtools.dummy_data_generator import generate_dummy_samples
+from devtools.dummy_data_generator import generate_dummy_samples, generate_dummy_order_input
 from storage.sample_repository import SampleRepository
+from storage.order_repository import OrderRepository
+from model.order_registry import OrderRegistry
 
-repo = SampleRepository(Path('samples.json'))
-repo.save(generate_dummy_samples(10, repo.load()))
+sample_repo = SampleRepository(Path('samples.json'))
+samples = generate_dummy_samples(10, sample_repo.load())
+sample_repo.save(samples)
+
+order_repo = OrderRepository(Path('orders.json'))
+order_registry = OrderRegistry()
+for _ in range(5):
+    order_registry.create(**generate_dummy_order_input(samples))
+order_repo.save(order_registry.list_all())
 "
 
-# 프로그램 실행 (메인 메뉴에서 1 -> 2 로 등록된 시료 목록을 바로 확인 가능)
+# 프로그램 실행 (메인 메뉴에서 1 -> 2 로 등록된 시료 목록을, 3 -> 접수된 주문 목록을 바로 확인 가능)
 python main.py
 ```
 
 `devtools/dummy_data_generator.py`는 시드 주입이 가능한 순수 함수라(`rng=random.Random(seed)`를
-넘기면 항상 같은 결과) 재현 가능한 테스트 데이터를 만들 때도 유용합니다. 아직 콘솔 메뉴에는
-연동되어 있지 않아 위처럼 파이썬 코드에서 직접 호출해야 합니다.
+넘기면 항상 같은 결과) 재현 가능한 테스트 데이터를 만들 때도 유용합니다. `generate_dummy_samples`는
+완성된 `Sample` 객체를 바로 생성하고, `generate_dummy_order_input`은 `order_id`/`created_at`을
+`OrderRegistry`가 직접 채번하므로 `sample_id`/`customer_name`/`quantity`만 담은 dict를 반환합니다
+(`OrderRegistry.create(**...)`에 바로 넘길 수 있는 형태). 아직 콘솔 메뉴에는 연동되어 있지 않아
+위처럼 파이썬 코드에서 직접 호출해야 합니다.
 
 ## 실행 방법
 
