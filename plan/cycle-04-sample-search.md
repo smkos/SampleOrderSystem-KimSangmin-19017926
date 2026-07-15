@@ -1,6 +1,6 @@
 [← PLAN.md 인덱스로 돌아가기](../PLAN.md)
 
-# Cycle 4 — 시료 검색
+# Cycle 4 — 시료 검색 (GREEN 완료)
 
 **이전 사이클**: [Cycle 3 — 시료 컨트롤러 연동](cycle-03-sample-controller.md)
 **다음 사이클**: 아직 계획되지 않음
@@ -147,13 +147,32 @@ def test_컨트롤러의_시료_검색은_레지스트리에_위임한다(tmp_pa
 
 ## 진행 결과
 
-- **RED/GREEN** (`bdacad2`, `44dad73`): 위 계획 중 `name` 부분 일치·대소문자 무시 검색을
-  `SampleRegistry.find_by_name(keyword)` / `SampleController.search_samples(keyword)`로
-  먼저 구현해 통과시켰다.
-- **범위 확장 요청**: 검토 과정에서 검색 대상에 `sample_id`도 포함해 달라는 요청을 받아, 이
-  문서의 "속성 범위"와 "이번 사이클에서 다룰 범위"를 갱신했다. `find_by_name`을 `search`로
-  이름을 바꾸고, `name`/`sample_id` 중 하나라도 일치하면 포함하도록 범위를 넓힌다. 뒤이어 이
-  변경을 위한 RED→GREEN을 추가로 진행한다.
+- **RED** (`bdacad2` 시료 검색 실패 테스트 작성): 최초 계획대로 `name`만 대상으로 한 부분
+  일치·대소문자 무시 검색 테스트를 작성해 실패를 확인했다.
+- **GREEN** (`44dad73` 시료 검색 최소 구현): `SampleRegistry.find_by_name(keyword)` /
+  `SampleController.search_samples(keyword)`로 구현해 5개 테스트를 통과시켰다.
+- **범위 확장 결정** (`7b7e96a` 계획 갱신): 검토 과정에서 검색 대상에 `sample_id`도 포함해야
+  한다는 요청을 받아, 이 문서의 "속성 범위"와 "이번 사이클에서 다룰 범위"를 갱신했다.
+  `find_by_name`을 `search`로 이름을 바꾸고, `name`/`sample_id` 중 하나라도 일치하면
+  포함하도록 범위를 넓히기로 결정했다.
+- **추가 RED** (`c672b49` sample_id 검색 확장 실패 테스트 추가): `find_by_name` 호출을
+  `search`로 갱신한 기존 테스트들과, `sample_id` 부분 일치를 검증하는 신규 테스트
+  (`test_시료_ID에_검색어가_포함된_시료도_반환한다`)를 추가해 실패를 확인했다.
+- **추가 GREEN** (`da63e06` 검색 대상에 sample_id 추가): `SampleRegistry.search()`가
+  `name` 또는 `sample_id` 둘 중 하나라도 대소문자 구분 없이 부분 일치하면 결과에 포함하도록
+  구현해, 확장된 테스트를 모두 통과시켰다. `SampleController.search_samples()`는 이 메서드를
+  그대로 위임 호출하는 통로 역할을 유지했다.
+- **verify-agent 최종 검증에서 발견된 사소한 갭**: `SampleController.search_samples()`가
+  `sample_id` 키워드로 검색할 때도 올바르게 위임되는지를 직접 검증하는 컨트롤러 레벨 테스트는
+  없다(현재 컨트롤러 테스트는 `name` 키워드 검색만 검증). 다만 `SampleRegistry.search()`
+  레벨에서는 `sample_id` 매칭이 충분히 검증되어 있고, 컨트롤러는 단순 위임(얇은 통로)이라
+  실질적 위험은 낮다고 판단했다. 사람 파트너와 논의한 결과, 이 정도 검증 수준으로 충분하다고
+  보고 추가 테스트 없이 이대로 마무리하기로 했다.
+- **최종 결과**: `tests/test_sample_registry.py`, `tests/test_sample_controller.py`의 관련
+  테스트가 모두 통과하며, Cycle 1~4를 포함한 전체 테스트 19개가 회귀 없이 통과한다.
+- **범위 준수 확인**: 계획대로 `view/console_view.py`, `Order` 관련 기능, 검색 결과
+  정렬/페이지네이션은 포함하지 않았다. `storage/sample_repository.py`는 수정되지 않았다.
+  `find_by_name`이라는 옛 이름은 코드베이스 어디에도 남아있지 않다.
 
 ---
 
