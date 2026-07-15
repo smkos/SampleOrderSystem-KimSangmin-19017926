@@ -138,3 +138,16 @@ class ConsoleView:
 
     def show_production_completed(self, order) -> None:
         print(f"생산이 완료되었습니다: {order.order_id} ({order.status.value})")
+
+    def show_releasable_orders(self, orders: list) -> None:
+        if not orders:
+            print("출고 가능한 주문이 없습니다")
+            return
+        for order in orders:
+            print(f"{order.order_id} | {order.sample_id} | {order.customer_name} | 수량: {order.quantity}")
+
+    def get_order_id_to_release(self) -> str:
+        return input("출고할 주문 ID: ").strip()
+
+    def show_order_released(self, order) -> None:
+        print(f"주문이 출고되었습니다: {order.order_id} ({order.status.value})")

@@ -1,4 +1,4 @@
-from model.order import Order
+from model.order import Order, OrderStatus
 from model.order_registry import OrderRegistry
 from model.sample_registry import SampleRegistry
 from storage.order_repository import OrderRepository
@@ -55,3 +55,15 @@ class OrderController:
 
     def list_orders(self) -> list[Order]:
         return self._order_registry.list_all()
+
+    def list_pending_orders(self) -> list[Order]:
+        return [
+            order for order in self.list_orders()
+            if order.status == OrderStatus.RESERVED
+        ]
+
+    def list_releasable_orders(self) -> list[Order]:
+        return [
+            order for order in self.list_orders()
+            if order.status == OrderStatus.CONFIRMED
+        ]
