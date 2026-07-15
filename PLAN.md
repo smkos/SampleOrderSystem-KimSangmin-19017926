@@ -17,7 +17,7 @@
 | 2 | 시료 영속화 | GREEN 완료 | [plan/cycle-02-sample-persistence.md](plan/cycle-02-sample-persistence.md) |
 | 3 | 시료 컨트롤러 연동 | GREEN 완료 | [plan/cycle-03-sample-controller.md](plan/cycle-03-sample-controller.md) |
 | 4 | 시료 검색 | GREEN 완료 | [plan/cycle-04-sample-search.md](plan/cycle-04-sample-search.md) |
-| 5 | 주문 모델 + 접수(RESERVED) | 미계획 | - |
+| 5 | 주문 모델 + 접수(RESERVED) | RED (검토 대기) | [plan/cycle-05-order-reservation.md](plan/cycle-05-order-reservation.md) |
 | 6 | 주문 영속화 (`OrderRepository`) | 미계획 | - |
 | 7 | 주문 승인/거절 (재고 확인 → CONFIRMED/PRODUCING/REJECTED) | 미계획 | - |
 | 8 | 생산 큐 계산 로직 (부족분/실생산량/총생산시간, FIFO) | 미계획 | - |

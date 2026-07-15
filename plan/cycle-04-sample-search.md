@@ -3,7 +3,7 @@
 # Cycle 4 — 시료 검색 (GREEN 완료)
 
 **이전 사이클**: [Cycle 3 — 시료 컨트롤러 연동](cycle-03-sample-controller.md)
-**다음 사이클**: 아직 계획되지 않음
+**다음 사이클**: [Cycle 5 — 주문 모델 + 접수(RESERVED)](cycle-05-order-reservation.md)
 
 ## 지금까지의 진행 상황 (컨텍스트)
 
@@ -176,4 +176,4 @@ def test_컨트롤러의_시료_검색은_레지스트리에_위임한다(tmp_pa
 
 ---
 
-**다음 사이클**: 아직 계획되지 않음
+**다음 사이클**: [Cycle 5 — 주문 모델 + 접수(RESERVED)](cycle-05-order-reservation.md)
