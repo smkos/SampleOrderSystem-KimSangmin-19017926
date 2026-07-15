@@ -55,7 +55,7 @@ controller/
   sample_controller.py    # 시료 등록/조회/검색, 저장소 연동 및 손상 데이터(중복 ID) 처리
   order_controller.py     # 주문 생성, 승인/거절, 출고 처리
   monitoring_controller.py # 상태별 주문 수, 재고 현황 집계
-  production_controller.py # 생산 라인 현황, 대기 큐 조회
+  production_controller.py # 생산 라인 현황, 대기 큐 조회, 생산 완료 처리(PRODUCING -> CONFIRMED)
 storage/
   sample_repository.py    # samples.json 로드/저장 (원자적 쓰기 + 충돌 감지)
   order_repository.py     # orders.json 로드/저장 (원자적 쓰기 + 충돌 감지)
