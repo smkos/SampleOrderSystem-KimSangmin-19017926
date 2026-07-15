@@ -45,7 +45,9 @@ CONFIRMED --출고--> RELEASE
 ```
 model/
   sample.py             # Sample — 데이터만 보관
+  sample_registry.py    # SampleRegistry — 인메모리 등록/중복·공백 이름 검증/검색
   order.py               # Order, OrderStatus — 데이터와 상태만 보관
+  order_registry.py       # OrderRegistry — 인메모리 생성/채번(ORD-YYYYMMDD-NNNN)/검증
   production_queue.py     # 생산 큐 계산 로직 (순수 함수: 부족분/실생산량/총생산시간)
 view/
   console_view.py         # 메뉴별 입출력
@@ -62,7 +64,10 @@ storage/
 - Model은 입출력을 모르고, View는 Controller가 넘긴 값만 표시하며, Controller가 Model과
   View를 중개한다 (`MVC_PoC` 원칙 그대로 적용).
 - `storage/*_repository.py`는 `DataPersistence_PoC`의 원자적 쓰기(임시 파일 → `os.replace`)와
-  동시성 충돌 감지(`ConflictError`) 패턴을 그대로 이식한다.
+  동시성 충돌 감지(`ConflictError`) 패턴을 그대로 이식한다. 다만 `ConflictError`는 저장소별로
+  각각 독립적으로 정의하며(예: `sample_repository.ConflictError`와 `order_repository.ConflictError`는
+  서로 다른 예외 타입), 두 저장소가 공유하는 타입이 아니다. 필요해지면 `storage/errors.py` 같은
+  공유 모듈로의 리팩터링을 재검토할 수 있다.
 
 ## 3. 저장 포맷
 
