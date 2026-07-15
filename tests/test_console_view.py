@@ -231,3 +231,132 @@ def test_거절_처리_결과를_출력한다(capsys):
     out = capsys.readouterr().out
     assert "ORD-20260715-0001" in out
     assert "REJECTED" in out
+
+
+def test_모니터링_하위_메뉴를_출력한다(capsys):
+    view = ConsoleView()
+
+    view.show_monitoring_menu()
+
+    out = capsys.readouterr().out
+    assert "주문량 확인" in out
+    assert "재고량 확인" in out
+
+
+def test_모니터링_하위_메뉴_선택_입력을_받는다(mocker):
+    mocker.patch("builtins.input", side_effect=["1"])
+    view = ConsoleView()
+
+    assert view.get_monitoring_menu_choice() == "1"
+
+
+def test_주문_상태별_개수를_출력한다(capsys):
+    view = ConsoleView()
+    counts = {
+        OrderStatus.RESERVED: 2,
+        OrderStatus.CONFIRMED: 1,
+        OrderStatus.PRODUCING: 0,
+        OrderStatus.RELEASE: 3,
+    }
+
+    view.show_order_counts(counts)
+
+    out = capsys.readouterr().out
+    assert "RESERVED" in out and "2" in out
+    assert "RELEASE" in out and "3" in out
+
+
+def test_재고_상태를_출력한다(capsys):
+    view = ConsoleView()
+    labels = {"S-001": "여유", "S-002": "부족", "S-003": "고갈"}
+
+    view.show_stock_status(labels)
+
+    out = capsys.readouterr().out
+    assert "S-001" in out and "여유" in out
+    assert "S-003" in out and "고갈" in out
+
+
+def test_생산_라인_하위_메뉴를_출력한다(capsys):
+    view = ConsoleView()
+
+    view.show_production_menu()
+
+    out = capsys.readouterr().out
+    assert "생산 현황 조회" in out
+    assert "생산완료 처리" in out
+
+
+def test_생산_라인_하위_메뉴_선택_입력을_받는다(mocker):
+    mocker.patch("builtins.input", side_effect=["1"])
+    view = ConsoleView()
+
+    assert view.get_production_menu_choice() == "1"
+
+
+def test_현재_생산중인_주문_정보를_출력한다(capsys):
+    view = ConsoleView()
+    order = Order(
+        "ORD-20260715-0001", "S-001", "삼성전자 파운드리", 200,
+        OrderStatus.PRODUCING, "2026-07-15T09:00:00",
+    )
+
+    view.show_current_production(order)
+
+    out = capsys.readouterr().out
+    assert "ORD-20260715-0001" in out
+    assert "삼성전자 파운드리" in out
+
+
+def test_현재_생산중인_주문이_없으면_안내_메시지를_출력한다(capsys):
+    view = ConsoleView()
+
+    view.show_current_production(None)
+
+    out = capsys.readouterr().out
+    assert "현재 생산 중인 주문이 없습니다" in out
+
+
+def test_대기중인_생산_큐를_출력한다(capsys):
+    view = ConsoleView()
+    orders = [
+        Order(
+            "ORD-20260715-0001", "S-001", "삼성전자 파운드리", 200,
+            OrderStatus.PRODUCING, "2026-07-15T09:00:00",
+        ),
+    ]
+
+    view.show_production_queue(orders)
+
+    out = capsys.readouterr().out
+    assert "ORD-20260715-0001" in out
+
+
+def test_대기중인_생산_큐가_없으면_안내_메시지를_출력한다(capsys):
+    view = ConsoleView()
+
+    view.show_production_queue([])
+
+    out = capsys.readouterr().out
+    assert "대기 중인 생산 주문이 없습니다" in out
+
+
+def test_생산완료_처리할_주문_ID_입력을_받는다(mocker):
+    mocker.patch("builtins.input", side_effect=["ORD-20260715-0001"])
+    view = ConsoleView()
+
+    assert view.get_order_id_to_complete() == "ORD-20260715-0001"
+
+
+def test_생산완료_처리_결과를_출력한다(capsys):
+    view = ConsoleView()
+    order = Order(
+        "ORD-20260715-0001", "S-001", "삼성전자 파운드리", 200,
+        OrderStatus.CONFIRMED, "2026-07-15T09:00:00",
+    )
+
+    view.show_production_completed(order)
+
+    out = capsys.readouterr().out
+    assert "ORD-20260715-0001" in out
+    assert "CONFIRMED" in out
