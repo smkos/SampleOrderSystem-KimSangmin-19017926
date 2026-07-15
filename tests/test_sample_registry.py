@@ -41,6 +41,13 @@ def test_수율이_음수이면_등록을_거부한다():
         registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, -0.1, 480))
 
 
+def test_수율이_1이면_등록을_허용한다():
+    registry = SampleRegistry()
+    registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 1.0, 480))
+
+    assert registry.list_all()[0].yield_rate == 1.0
+
+
 def test_이름에_검색어가_포함된_시료만_반환한다():
     registry = SampleRegistry()
     registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
