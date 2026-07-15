@@ -405,3 +405,12 @@ def test_출고_처리_결과를_출력한다(capsys):
     out = capsys.readouterr().out
     assert "ORD-20260715-0001" in out
     assert "RELEASE" in out
+
+
+def test_에러_메시지를_출력한다(capsys):
+    view = ConsoleView()
+
+    view.show_error("문제가 발생했습니다: 잘못된 값입니다")
+
+    out = capsys.readouterr().out
+    assert "문제가 발생했습니다: 잘못된 값입니다" in out

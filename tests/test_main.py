@@ -158,6 +158,38 @@ def test_생산_라인_메뉴에서_생산완료_처리를_한다(tmp_path, mock
     assert order_controller.list_orders()[0].status.value == "CONFIRMED"
 
 
+def test_존재하지_않는_시료ID로_주문하면_에러_메시지를_출력하고_계속_진행한다(tmp_path, mocker, capsys):
+    controllers = main.build_controllers(tmp_path / "samples.json", tmp_path / "orders.json")
+    mocker.patch(
+        "builtins.input",
+        side_effect=[
+            "2",                                  # 메인 메뉴: 시료 주문
+            "S-999", "존재안하는고객", "10",        # 존재하지 않는 시료 ID -> ValueError 발생 기대
+            "7",                                  # 메인 메뉴: 종료
+        ],
+    )
+
+    main.run_main_loop(ConsoleView(), *controllers)  # 예외 없이 정상 종료되어야 함
+
+    out = capsys.readouterr().out
+    assert "S-999" in out or "존재하지 않는" in out or "오류" in out  # 에러 메시지가 출력됐는지(정확한 문구는 GREEN 단계에서 확정)
+
+
+def test_시료_등록에서_수량에_숫자가_아닌_값을_입력해도_프로그램이_죽지_않는다(tmp_path, mocker, capsys):
+    controllers = main.build_controllers(tmp_path / "samples.json", tmp_path / "orders.json")
+    mocker.patch(
+        "builtins.input",
+        side_effect=[
+            "1", "1",                              # 메인 메뉴: 시료 관리 -> 신규 등록
+            "S-001", "실리콘 웨이퍼", "abc", "0.9", "100",  # "abc"는 float 변환 실패
+            "4",                                   # 시료 관리: 뒤로 가기
+            "7",                                   # 메인 메뉴: 종료
+        ],
+    )
+
+    main.run_main_loop(ConsoleView(), *controllers)  # 예외 없이 정상 종료되어야 함 (여기가 핵심 검증)
+
+
 def test_출고_처리_메뉴에서_출고를_처리한다(tmp_path, mocker, capsys):
     sample_controller, order_controller, production_controller, monitoring_controller = (
         main.build_controllers(tmp_path / "samples.json", tmp_path / "orders.json")
