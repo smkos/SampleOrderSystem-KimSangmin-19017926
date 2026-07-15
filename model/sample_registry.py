@@ -17,8 +17,12 @@ class SampleRegistry:
     def list_all(self) -> list[Sample]:
         return list(self._samples)
 
-    def find_by_name(self, keyword: str) -> list[Sample]:
+    def search(self, keyword: str) -> list[Sample]:
         if not keyword.strip():
             return []
         keyword_lower = keyword.lower()
-        return [sample for sample in self._samples if keyword_lower in sample.name.lower()]
+        return [
+            sample
+            for sample in self._samples
+            if keyword_lower in sample.name.lower() or keyword_lower in sample.sample_id.lower()
+        ]
