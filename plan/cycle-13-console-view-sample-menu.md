@@ -1,9 +1,9 @@
 [← PLAN.md 인덱스로 돌아가기](../PLAN.md)
 
-# Cycle 13 — 콘솔 View 골격 + 메인 메뉴 요약 정보 + 시료 관리 메뉴
+# Cycle 13 — 콘솔 View 골격 + 메인 메뉴 요약 정보 + 시료 관리 메뉴 (GREEN 완료)
 
 **이전 사이클**: [Cycle 12 — 주문/생산 컨트롤러 영속화 연동](cycle-12-order-controller-persistence.md)
-**다음 사이클**: 아직 계획되지 않음 (예정: Cycle 14 — 시료 주문 메뉴 + 주문 승인/거절 메뉴)
+**다음 사이클**: [Cycle 14 — 콘솔 View: 시료 주문 메뉴 + 주문 승인/거절 메뉴](cycle-14-console-view-order-menus.md)
 
 ## 지금까지의 진행 상황 (컨텍스트)
 
@@ -239,8 +239,23 @@ def test_검색_결과가_없으면_안내_메시지를_출력한다(capsys):
 > "다룰 범위"에 나열된 나머지 메서드에 대해서도 동일한 방식(단일 동작 검증, mock 최소화)으로
 > 테스트를 추가한다.
 
-## 검토 요청
+## 진행 결과
 
-위 목표/범위(특히 설계 판단 1~4번 — `capsys` 기반 출력 검증 전략, `ConsoleView`의 "순수
-입출력만" 책임 범위, `summary` dict 표시 형식만 확정하고 실제 집계는 보류하는 판단, `main.py`
-제외)로 RED 단계를 진행해도 될지 검토 부탁드립니다.
+- **RED** (`0399ce8` Cycle 13 RED: 콘솔 View 골격 및 시료 관리 메뉴 실패 테스트 작성): 위 설계
+  판단 1~4번(`capsys` 기반 출력 검증, `ConsoleView`의 "순수 입출력만" 책임 범위, `summary` dict
+  표시 형식만 확정하고 실제 집계는 보류하는 판단, `main.py` 제외)을 사람 파트너 검토를 거쳐
+  이견 없이 채택했다. `tests/test_console_view.py`를 신규 작성해 실패를 확인했다.
+- **GREEN** (`dd439ab` Cycle 13 GREEN: 콘솔 View 골격 및 시료 관리 메뉴 최소 구현): 계획대로
+  `view/console_view.py`에 `ConsoleView`를 구현했다 — 메인 메뉴(`show_main_menu`,
+  `get_menu_choice`)와 시료 관리 하위 메뉴(`show_sample_menu`, `get_sample_menu_choice`,
+  `get_new_sample_input`, `show_sample_registered`, `show_sample_list`, `get_search_keyword`,
+  `show_search_results`)를 모두 포함한다. 설계 판단 2번대로 `ConsoleView`는 어떤 모듈도 import
+  하지 않는 순수 입출력 클래스로 구현됐다(Controller 미참조, `Sample`조차 duck-typing으로
+  속성만 사용).
+- **최종 결과**: `tests/test_console_view.py`의 11개 테스트가 모두 통과하며, 전체 테스트 96개가
+  회귀 없이 통과한다.
+- **범위 준수 확인**: 계획대로 `main.py`, 시료 주문/승인·거절/모니터링/생산 라인/출고 처리
+  메뉴, `summary` dict 실제 집계 로직, 사용자 입력값 검증은 포함하지 않았다.
+- **참고 — verify-agent 독립 검증 생략**: Cycle 12에 이어 이번 사이클도 verify-agent 독립 검증을
+  생략했다(사람 파트너가 프로젝트 막바지 진행 속도를 위해 마지막 사이클까지 생략하고 한 번에
+  몰아서 검증하기로 결정함). 이 검증은 나중에 몰아서 수행될 예정이다.
