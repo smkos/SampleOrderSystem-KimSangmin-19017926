@@ -112,3 +112,32 @@ def test_존재하지_않는_주문ID를_승인하면_예외가_발생한다():
 
     with pytest.raises(ValueError):
         registry.approve("ORD-20260715-9999", stock_sufficient=True)
+
+
+def test_PRODUCING_주문을_생산완료_처리하면_CONFIRMED로_전환된다(mocker):
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 32, 15))
+    registry = OrderRegistry()
+    order = registry.create("S-001", "삼성전자 파운드리", 200)
+    registry.approve(order.order_id, stock_sufficient=False)
+
+    completed = registry.complete_production(order.order_id)
+
+    assert completed.status == OrderStatus.CONFIRMED
+
+
+def test_PRODUCING이_아닌_주문을_생산완료_처리하면_예외가_발생하고_상태가_바뀌지_않는다(mocker):
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 32, 15))
+    registry = OrderRegistry()
+    order = registry.create("S-001", "삼성전자 파운드리", 200)
+    registry.approve(order.order_id, stock_sufficient=True)  # CONFIRMED로 전환됨
+
+    with pytest.raises(ValueError):
+        registry.complete_production(order.order_id)
+    assert registry.get(order.order_id).status == OrderStatus.CONFIRMED
+
+
+def test_존재하지_않는_주문ID를_생산완료_처리하면_예외가_발생한다():
+    registry = OrderRegistry()
+
+    with pytest.raises(ValueError):
+        registry.complete_production("ORD-20260715-9999")

@@ -89,3 +89,28 @@ def test_공백만_있는_검색어는_빈_목록을_반환한다():
     registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
 
     assert registry.search("   ") == []
+
+
+def test_재고를_증가시키면_수량이_늘어난다():
+    registry = SampleRegistry()
+    registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 50))
+
+    updated = registry.increase_stock("S-001", 164)
+
+    assert updated.stock_qty == 214
+
+
+def test_존재하지_않는_시료ID의_재고를_증가시키면_예외가_발생한다():
+    registry = SampleRegistry()
+
+    with pytest.raises(ValueError):
+        registry.increase_stock("S-999", 10)
+
+
+def test_음수만큼_재고를_증가시키면_예외가_발생하고_수량이_바뀌지_않는다():
+    registry = SampleRegistry()
+    registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 50))
+
+    with pytest.raises(ValueError):
+        registry.increase_stock("S-001", -1)
+    assert registry.search("S-001")[0].stock_qty == 50
