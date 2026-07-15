@@ -23,6 +23,24 @@ def test_공백만_있는_이름은_등록을_거부한다():
         registry.register(Sample("S-002", "   ", 0.3, 0.9, 100))
 
 
+def test_수율이_0이면_등록을_거부한다():
+    registry = SampleRegistry()
+    with pytest.raises(ValueError):
+        registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.0, 480))
+
+
+def test_수율이_1보다_크면_등록을_거부한다():
+    registry = SampleRegistry()
+    with pytest.raises(ValueError):
+        registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 1.5, 480))
+
+
+def test_수율이_음수이면_등록을_거부한다():
+    registry = SampleRegistry()
+    with pytest.raises(ValueError):
+        registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, -0.1, 480))
+
+
 def test_이름에_검색어가_포함된_시료만_반환한다():
     registry = SampleRegistry()
     registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
