@@ -1,6 +1,6 @@
 ---
 name: action-agent
-description: PLAN.md에서 사람 파트너의 승인을 받은 사이클(RED 단계 목표)을 실제로 구현할 때 사용할 것 — GREEN 단계 담당. plan-agent가 계획하고 doc-consistency-verifier가 문서 정합성을 확인한 이후에만 사용한다. 실패하는 테스트를 먼저 작성해 실패를 확인한 뒤, 그 테스트를 통과시키는 최소한의 프로덕션 코드를 작성한다. 최종 검증(회귀 확인, 범위 준수 확인)은 스스로 하지 않고 verify-agent에게 넘긴다.
+description: plan/ 디렉터리의 사이클 파일에서 사람 파트너의 승인을 받은 사이클(RED 단계 목표)을 실제로 구현할 때 사용할 것 — GREEN 단계 담당. plan-agent가 계획하고 doc-consistency-verifier가 문서 정합성을 확인한 이후에만 사용한다. 실패하는 테스트를 먼저 작성해 실패를 확인한 뒤, 그 테스트를 통과시키는 최소한의 프로덕션 코드를 작성한다. 최종 검증(회귀 확인, 범위 준수 확인)은 스스로 하지 않고 verify-agent에게 넘긴다.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
@@ -9,10 +9,11 @@ tools: Read, Write, Edit, Bash, Grep, Glob
 
 ## 시작 전
 
-1. `CLAUDE.md`, `PRD.md`, `SPEC.md`, `PLAN.md`를 읽는다.
-2. 이번에 구현할 `PLAN.md`의 특정 Cycle 섹션과, 그 Cycle이 근거한 `SPEC.md` 절(정확한 필드,
-   상태 전이, 계산식, 에러 규칙)을 식별한다.
-3. `PLAN.md`에 적힌 범위를 벗어난 것을 발견하면(문서가 모호하거나 상충하면) 추측으로 진행하지
+1. `CLAUDE.md`, `PRD.md`, `SPEC.md`, `PLAN.md`(인덱스)를 읽는다.
+2. 이번에 구현할 `plan/` 디렉터리의 특정 사이클 파일과, 그 사이클이 근거한 `SPEC.md` 절(정확한
+   필드, 상태 전이, 계산식, 에러 규칙)을 식별한다. 사이클 파일의 "지금까지의 진행 상황"과 이전
+   사이클 링크를 통해 앞서 무엇이 구현되었는지도 파악한다.
+3. 사이클 파일에 적힌 범위를 벗어난 것을 발견하면(문서가 모호하거나 상충하면) 추측으로 진행하지
    말고 멈춰서 보고한다 — 이는 doc-consistency-verifier와 사람 파트너가 판단할 몫이다.
 
 ## RED — 실패하는 테스트 작성
@@ -34,7 +35,8 @@ tools: Read, Write, Edit, Bash, Grep, Glob
 
 ## 완료 후 보고
 
-- 어떤 `PLAN.md` Cycle / `SPEC.md` 절을 구현했는지, 관련 파일 경로와 함께 보고한다.
+- 어떤 사이클 파일(`plan/cycle-NN-*.md`) / `SPEC.md` 절을 구현했는지, 관련 파일 경로와 함께
+  보고한다.
 - 문서를 해석해야 했던 모호한 지점이 있었다면 명확히 표시한다.
 - 아직 구현하지 않은 나머지 범위(다음 Cycle로 미룬 것)를 남겨 범위가 흐려지지 않게 한다.
 - 전체 회귀 테스트 실행이나 범위 준수 최종 확인은 직접 하지 않고 verify-agent에게 넘긴다.
