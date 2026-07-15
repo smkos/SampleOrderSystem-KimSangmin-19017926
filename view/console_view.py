@@ -151,3 +151,6 @@ class ConsoleView:
 
     def show_order_released(self, order) -> None:
         print(f"주문이 출고되었습니다: {order.order_id} ({order.status.value})")
+
+    def show_error(self, message: str) -> None:
+        print(f"오류: {message}")

@@ -48,10 +48,13 @@ def _run_sample_menu(view, sample_controller) -> None:
         view.show_sample_menu()
         choice = view.get_sample_menu_choice()
         if choice == "1":
-            sample_input = view.get_new_sample_input()
-            sample = Sample(**sample_input)
-            sample_controller.register_sample(sample)
-            view.show_sample_registered(sample)
+            try:
+                sample_input = view.get_new_sample_input()
+                sample = Sample(**sample_input)
+                sample_controller.register_sample(sample)
+                view.show_sample_registered(sample)
+            except ValueError as e:
+                view.show_error(str(e))
         elif choice == "2":
             view.show_sample_list(sample_controller.list_samples())
         elif choice == "3":
@@ -62,23 +65,29 @@ def _run_sample_menu(view, sample_controller) -> None:
 
 
 def _run_order_menu(view, order_controller) -> None:
-    order_input = view.get_new_order_input()
-    order = order_controller.create_order(**order_input)
-    view.show_order_created(order)
+    try:
+        order_input = view.get_new_order_input()
+        order = order_controller.create_order(**order_input)
+        view.show_order_created(order)
+    except ValueError as e:
+        view.show_error(str(e))
 
 
 def _run_approval_menu(view, order_controller) -> None:
-    view.show_pending_orders(order_controller.list_pending_orders())
-    order_id = view.get_order_id_to_process()
-    decision = view.get_approval_decision()
-    if decision == "1":
-        order = order_controller.approve_order(order_id)
-        view.show_order_approved(order)
-    elif decision == "2":
-        order = order_controller.reject_order(order_id)
-        view.show_order_rejected(order)
-    else:
-        print("잘못된 선택입니다")
+    try:
+        view.show_pending_orders(order_controller.list_pending_orders())
+        order_id = view.get_order_id_to_process()
+        decision = view.get_approval_decision()
+        if decision == "1":
+            order = order_controller.approve_order(order_id)
+            view.show_order_approved(order)
+        elif decision == "2":
+            order = order_controller.reject_order(order_id)
+            view.show_order_rejected(order)
+        else:
+            print("잘못된 선택입니다")
+    except ValueError as e:
+        view.show_error(str(e))
 
 
 def _run_monitoring_menu(view, monitoring_controller) -> None:
@@ -101,18 +110,24 @@ def _run_production_menu(view, production_controller) -> None:
             view.show_current_production(production_controller.current_production_order())
             view.show_production_queue(production_controller.list_production_queue())
         elif choice == "2":
-            order_id = view.get_order_id_to_complete()
-            order = production_controller.complete_production(order_id)
-            view.show_production_completed(order)
+            try:
+                order_id = view.get_order_id_to_complete()
+                order = production_controller.complete_production(order_id)
+                view.show_production_completed(order)
+            except ValueError as e:
+                view.show_error(str(e))
         elif choice == "3":
             return
 
 
 def _run_release_menu(view, order_controller) -> None:
-    view.show_releasable_orders(order_controller.list_releasable_orders())
-    order_id = view.get_order_id_to_release()
-    order = order_controller.release_order(order_id)
-    view.show_order_released(order)
+    try:
+        view.show_releasable_orders(order_controller.list_releasable_orders())
+        order_id = view.get_order_id_to_release()
+        order = order_controller.release_order(order_id)
+        view.show_order_released(order)
+    except ValueError as e:
+        view.show_error(str(e))
 
 
 def run_main_loop(
