@@ -269,3 +269,41 @@ def test_두_CONFIRMED_주문을_순서대로_출고해도_둘_다_성공한다(
     assert released_a.status == OrderStatus.RELEASE
     assert released_b.status == OrderStatus.RELEASE
     assert sample_registry.search("S-001")[0].stock_qty == 0
+
+
+def test_접수된_주문만_걸러서_조회한다(tmp_path, mocker):
+    mocker.patch(
+        "model.order_registry.datetime"
+    ).datetime.now.return_value = datetime_module.datetime(2026, 7, 15, 9, 0, 0)
+    sample_registry = SampleRegistry()
+    sample_registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
+    controller = OrderController(
+        OrderRegistry(), sample_registry,
+        OrderRepository(tmp_path / "orders.json"), SampleRepository(tmp_path / "samples.json"),
+    )
+    reserved = controller.create_order("S-001", "삼성전자 파운드리", 100)
+    confirmed = controller.create_order("S-001", "SK하이닉스", 50)
+    controller.approve_order(confirmed.order_id)  # 재고 충분 → CONFIRMED
+
+    pending = controller.list_pending_orders()
+
+    assert [order.order_id for order in pending] == [reserved.order_id]
+
+
+def test_출고_가능한_주문만_걸러서_조회한다(tmp_path, mocker):
+    mocker.patch(
+        "model.order_registry.datetime"
+    ).datetime.now.return_value = datetime_module.datetime(2026, 7, 15, 9, 0, 0)
+    sample_registry = SampleRegistry()
+    sample_registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
+    controller = OrderController(
+        OrderRegistry(), sample_registry,
+        OrderRepository(tmp_path / "orders.json"), SampleRepository(tmp_path / "samples.json"),
+    )
+    reserved = controller.create_order("S-001", "삼성전자 파운드리", 100)
+    confirmed = controller.create_order("S-001", "SK하이닉스", 50)
+    controller.approve_order(confirmed.order_id)  # 재고 충분 → CONFIRMED
+
+    releasable = controller.list_releasable_orders()
+
+    assert [order.order_id for order in releasable] == [confirmed.order_id]

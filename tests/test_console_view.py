@@ -360,3 +360,48 @@ def test_생산완료_처리_결과를_출력한다(capsys):
     out = capsys.readouterr().out
     assert "ORD-20260715-0001" in out
     assert "CONFIRMED" in out
+
+
+def test_출고_가능한_주문_목록을_출력한다(capsys):
+    view = ConsoleView()
+    orders = [
+        Order(
+            "ORD-20260715-0001", "S-001", "삼성전자 파운드리", 200,
+            OrderStatus.CONFIRMED, "2026-07-15T09:00:00",
+        ),
+    ]
+
+    view.show_releasable_orders(orders)
+
+    out = capsys.readouterr().out
+    assert "ORD-20260715-0001" in out
+
+
+def test_출고_가능한_주문이_없으면_안내_메시지를_출력한다(capsys):
+    view = ConsoleView()
+
+    view.show_releasable_orders([])
+
+    out = capsys.readouterr().out
+    assert "출고 가능한 주문이 없습니다" in out
+
+
+def test_출고할_주문_ID_입력을_받는다(mocker):
+    mocker.patch("builtins.input", side_effect=["ORD-20260715-0001"])
+    view = ConsoleView()
+
+    assert view.get_order_id_to_release() == "ORD-20260715-0001"
+
+
+def test_출고_처리_결과를_출력한다(capsys):
+    view = ConsoleView()
+    order = Order(
+        "ORD-20260715-0001", "S-001", "삼성전자 파운드리", 200,
+        OrderStatus.RELEASE, "2026-07-15T09:00:00",
+    )
+
+    view.show_order_released(order)
+
+    out = capsys.readouterr().out
+    assert "ORD-20260715-0001" in out
+    assert "RELEASE" in out
