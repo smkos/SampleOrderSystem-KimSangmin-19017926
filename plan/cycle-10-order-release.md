@@ -1,9 +1,9 @@
 [← PLAN.md 인덱스로 돌아가기](../PLAN.md)
 
-# Cycle 10 — 출고 처리 (CONFIRMED → RELEASE) (RED 검토 대기)
+# Cycle 10 — 출고 처리 (CONFIRMED → RELEASE) (GREEN 완료)
 
 **이전 사이클**: [Cycle 9 — 생산 완료 처리 (PRODUCING → CONFIRMED)](cycle-09-production-completion.md)
-**다음 사이클**: 아직 계획되지 않음
+**다음 사이클**: [Cycle 11 — 모니터링 집계 (상태별 주문 수, 재고 상태 라벨)](cycle-11-monitoring-aggregation.md)
 
 ## 지금까지의 진행 상황 (컨텍스트)
 
@@ -265,9 +265,30 @@ def test_재고가_부족하면_출고처리시_예외가_발생하고_상태와
     assert controller._order_registry.get(order.order_id).status == OrderStatus.CONFIRMED
 ```
 
-## 검토 요청
+## 진행 결과
 
-이 목표/범위로 RED 단계를 진행해도 될지 검토 부탁드립니다. 특히 (a) 출고 시 재고를
-`order.quantity`만큼 감소시키는 것(설계 판단 2번), (b) 재고 부족 시 출고를 거부하고 상태·재고
-모두 변경하지 않는 것(설계 판단 3번), (c) 재고 확인을 상태 전이보다 먼저 수행하는 처리
-순서(설계 판단 4번, Cycle 9와 반대 순서)에 대해 이견이 있으면 알려주시기 바랍니다.
+- **계획** (`daeffdd` Cycle 10 계획: 출고 처리 (CONFIRMED -> RELEASE)): 위 목표/범위와 네 가지
+  설계 판단을 문서화했다.
+- **RED** (`c041ad0` Cycle 10 RED: 출고 처리 실패 테스트 작성): 위 10개 테스트를
+  `tests/test_order_registry.py`(3개 신규), `tests/test_sample_registry.py`(4개 신규),
+  `tests/test_order_controller.py`(3개 신규)에 작성해 실패를 확인했다.
+- **GREEN** (`8128714` Cycle 10 GREEN: 출고 처리 최소 구현): 계획대로
+  `model/order_registry.py`에 `OrderRegistry.release()`를, `model/sample_registry.py`에
+  `SampleRegistry.decrease_stock()`을, `controller/order_controller.py`에
+  `OrderController.release_order()`를 구현했다.
+- **SPEC.md 갱신** (`9433459` SPEC.md 갱신: 출고 시 재고 감소 규칙 명시): 계획 승인에 따라
+  `SPEC.md` §4에 "출고 시 재고 반영"(주문 수량만큼 감소, 부족 시 거부) 규칙을 추가해, 설계
+  판단 2번에서 남겨뒀던 확인 필요 항목을 해소했다.
+- **설계 판단 채택 여부**: 계획 문서의 네 가지 설계 판단(담당 모듈 = `order_controller.py`,
+  출고 시 재고 감소 채택, 재고 부족 시 거부, 재고 확인을 상태 전이보다 먼저 수행하는 처리
+  순서)은 사람 파트너 검토를 거쳐 이견 없이 그대로 채택됐다.
+- **verify-agent 독립 검증**: 처리 순서(재고 부족 시 상태·재고 모두 불변, "재고는 충분한데
+  `CONFIRMED`가 아닌 경우" 재고가 먼저 줄지 않는지)를 코드 대조와 `git stash` 재현으로
+  확인했고 문제 없음을 확인했다.
+- **최종 결과**: `tests/test_order_registry.py`(3개 신규) + `tests/test_sample_registry.py`
+  (4개 신규) + `tests/test_order_controller.py`(3개 신규) = 10개 테스트가 모두 통과하며, Cycle
+  1~9를 포함한 전체 테스트 70개가 회귀 없이 통과한다.
+- **범위 준수 확인**: 계획대로 `view/` 관련 코드, 저장소 연동, 여러 주문 일괄 출고는 포함하지
+  않았다. `model/order.py`, `model/sample.py`, `model/production_queue.py`,
+  `controller/production_controller.py`, `controller/sample_controller.py`,
+  `storage/order_repository.py`, `storage/sample_repository.py`는 수정되지 않았다.

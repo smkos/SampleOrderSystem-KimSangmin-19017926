@@ -22,8 +22,8 @@
 | 7 | 주문 승인/거절 (재고 확인 → CONFIRMED/PRODUCING/REJECTED) | GREEN 완료 | [plan/cycle-07-order-approval.md](plan/cycle-07-order-approval.md) |
 | 8 | 생산 큐 계산 로직 (부족분/실생산량/총생산시간, FIFO) | GREEN 완료 | [plan/cycle-08-production-queue.md](plan/cycle-08-production-queue.md) |
 | 9 | 생산 완료 처리 (PRODUCING → CONFIRMED) | GREEN 완료 | [plan/cycle-09-production-completion.md](plan/cycle-09-production-completion.md) |
-| 10 | 출고 처리 (CONFIRMED → RELEASE) | RED (검토 대기) | [plan/cycle-10-order-release.md](plan/cycle-10-order-release.md) |
-| 11 | 모니터링 집계 | 미계획 | - |
+| 10 | 출고 처리 (CONFIRMED → RELEASE) | GREEN 완료 | [plan/cycle-10-order-release.md](plan/cycle-10-order-release.md) |
+| 11 | 모니터링 집계 (상태별 주문 수, 재고 상태 라벨) | RED (검토 대기) | [plan/cycle-11-monitoring-aggregation.md](plan/cycle-11-monitoring-aggregation.md) |
 | 12 | 콘솔 View/Controller 통합 (전체 메뉴 흐름) | 미계획 | - |
 
 > Cycle 4 이후는 개략적인 이름만 미리 적어 둔 것이며, 실제 진행하면서 범위가 나뉘거나 순서가
