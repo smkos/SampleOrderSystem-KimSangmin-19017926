@@ -3,7 +3,7 @@
 # Cycle 9 — 생산 완료 처리 (PRODUCING → CONFIRMED) (GREEN 완료)
 
 **이전 사이클**: [Cycle 8 — 생산 큐 계산 로직 (부족분/실생산량/총생산시간, FIFO)](cycle-08-production-queue.md)
-**다음 사이클**: 아직 계획되지 않음
+**다음 사이클**: [Cycle 10 — 출고 처리 (CONFIRMED → RELEASE)](cycle-10-order-release.md)
 
 ## 지금까지의 진행 상황 (컨텍스트)
 
