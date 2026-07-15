@@ -1,6 +1,6 @@
 [← PLAN.md 인덱스로 돌아가기](../PLAN.md)
 
-# Cycle 15 — 콘솔 View: 모니터링 메뉴 + 생산 라인 메뉴
+# Cycle 15 — 콘솔 View: 모니터링 메뉴 + 생산 라인 메뉴 (GREEN 완료)
 
 **이전 사이클**: [Cycle 14 — 콘솔 View: 시료 주문 메뉴 + 주문 승인/거절 메뉴](cycle-14-console-view-order-menus.md)
 **다음 사이클**: [Cycle 16 — 출고 처리 메뉴 + `main.py` 진입점 (프로젝트의 마지막 사이클)](cycle-16-order-release-menu-main-entrypoint.md)
@@ -357,10 +357,28 @@ def test_생산완료_처리_결과를_출력한다(capsys):
 > `get_production_menu_choice`) 등 "다룰 범위"에 나열된 나머지 메서드에 대해서도 동일한 방식
 > (단일 동작 검증, mock 최소화)으로 테스트를 추가한다.
 
-## 검토 요청
+## 진행 결과
 
-위 목표/범위(특히 설계 판단 1번 — `sort_production_queue`를 `ProductionController`의 신규 조회
-메서드로 연결하는 판단, 설계 판단 2번 — "현재 생산 중" 표시를 큐 선두 주문의 기존 필드만으로
-최소화하고 진행률은 다루지 않는 판단, 설계 판단 3번 — 대기 큐에서 선두 주문을 제외하지 않는
-판단, 설계 판단 4번 — 모니터링/생산 라인 모두 하위 메뉴를 두는 판단)으로 RED 단계를 진행해도
-될지 검토 부탁드립니다.
+- **RED** (`9d4af5a` Cycle 15 RED: 모니터링/생산 라인 메뉴 View 및 FIFO 큐 연결 실패 테스트):
+  위 설계 판단 1~5번(`sort_production_queue`를 `ProductionController`의 신규 조회 메서드로
+  연결하는 위치, "현재 생산 중" 표시를 큐 선두 주문의 기존 필드만으로 최소화하고 진행률은
+  다루지 않는 판단, 대기 큐에서 선두 주문을 제외하지 않는 판단, 모니터링/생산 라인 모두 하위
+  메뉴를 두는 판단, 상태별 개수를 `.value` 문자열로 표시하는 판단)을 사람 파트너 검토를 거쳐
+  이견 없이 채택했다. `tests/test_production_controller.py`와 `tests/test_console_view.py`에
+  신규 테스트를 추가해 실패를 확인했다.
+- **GREEN** (`e8c297e` Cycle 15 GREEN: 모니터링/생산 라인 메뉴 View 및 FIFO 큐 연결 최소 구현):
+  계획대로 `controller/production_controller.py`에 `list_production_queue()`,
+  `current_production_order()`를 구현해 Cycle 8의 `sort_production_queue()`를 처음으로 실제
+  데이터에 연결했다. `view/console_view.py`에는 모니터링 하위 메뉴(`show_monitoring_menu`,
+  `get_monitoring_menu_choice`, `show_order_counts`, `show_stock_status`)와 생산 라인 하위
+  메뉴(`show_production_menu`, `get_production_menu_choice`, `show_current_production`,
+  `show_production_queue`, `get_order_id_to_complete`, `show_production_completed`)를
+  구현했다. `ConsoleView`는 여전히 어떤 Controller/Model도 import하지 않는다.
+- **최종 결과**: 신규 테스트 18개(`test_production_controller.py` 3개 + `test_console_view.py`
+  15개)가 모두 통과하며, 전체 테스트 120개가 회귀 없이 통과한다.
+- **범위 준수 확인**: 계획대로 `main.py` 진입점, 메뉴 선택에 따른 실제 분기·루프, 출고 처리
+  메뉴의 입출력, 생산 진행률(부분 생산량) 추적, 사용자 입력값 검증, 생산완료 처리 선택 문자열을
+  실제 Controller 호출로 연결하는 분기 로직은 포함하지 않았다.
+- **참고 — verify-agent 독립 검증 생략**: Cycle 12~14에 이어 이번 사이클도 verify-agent 독립
+  검증을 생략했다(사람 파트너가 프로젝트 막바지 진행 속도를 위해 마지막 사이클까지 생략하고
+  한 번에 몰아서 검증하기로 결정함). 이 검증은 나중에 몰아서 수행될 예정이다.
