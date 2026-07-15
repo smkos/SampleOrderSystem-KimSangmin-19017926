@@ -31,6 +31,9 @@ class OrderRegistry:
     def list_all(self) -> list[Order]:
         return list(self._orders)
 
+    def restore(self, orders: list[Order]) -> None:
+        self._orders = list(orders)
+
     def get(self, order_id: str) -> Order:
         for order in self._orders:
             if order.order_id == order_id:
