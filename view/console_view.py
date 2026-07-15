@@ -1,0 +1,63 @@
+class ConsoleView:
+    """콘솔 입출력만 담당한다. Controller를 호출하지 않는다."""
+
+    def show_main_menu(self, summary: dict) -> None:
+        print("=== S-Semi 시료 생산주문관리 시스템 ===")
+        print(f"등록 시료 수: {summary['sample_count']}")
+        print(f"총 재고: {summary['total_stock_qty']}")
+        print(f"전체 주문 수: {summary['total_order_count']}")
+        print(f"생산라인 대기 건수: {summary['pending_production_count']}")
+        print("1. 시료 관리")
+        print("2. 시료 주문")
+        print("3. 주문 승인/거절")
+        print("4. 모니터링")
+        print("5. 생산 라인")
+        print("6. 출고 처리")
+        print("7. 종료")
+
+    def get_menu_choice(self) -> str:
+        return input("메뉴를 선택하세요: ").strip()
+
+    def show_sample_menu(self) -> None:
+        print("=== 시료 관리 ===")
+        print("1. 신규 등록")
+        print("2. 목록 조회")
+        print("3. 이름 검색")
+        print("4. 뒤로 가기")
+
+    def get_sample_menu_choice(self) -> str:
+        return input("메뉴를 선택하세요: ").strip()
+
+    def get_new_sample_input(self) -> dict:
+        sample_id = input("시료 ID: ")
+        name = input("이름: ")
+        avg_production_time_min = float(input("평균 생산시간(분): "))
+        yield_rate = float(input("수율: "))
+        stock_qty = int(input("초기 재고 수량: "))
+        return {
+            "sample_id": sample_id,
+            "name": name,
+            "avg_production_time_min": avg_production_time_min,
+            "yield_rate": yield_rate,
+            "stock_qty": stock_qty,
+        }
+
+    def show_sample_registered(self, sample) -> None:
+        print(f"시료가 등록되었습니다: {sample.sample_id} ({sample.name})")
+
+    def show_sample_list(self, samples: list) -> None:
+        if not samples:
+            print("등록된 시료가 없습니다")
+            return
+        for sample in samples:
+            print(f"{sample.sample_id} | {sample.name} | 재고: {sample.stock_qty}")
+
+    def get_search_keyword(self) -> str:
+        return input("검색어: ")
+
+    def show_search_results(self, samples: list) -> None:
+        if not samples:
+            print("검색 결과가 없습니다")
+            return
+        for sample in samples:
+            print(f"{sample.sample_id} | {sample.name} | 재고: {sample.stock_qty}")
