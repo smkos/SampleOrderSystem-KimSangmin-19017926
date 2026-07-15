@@ -60,3 +60,14 @@ def test_중복된_시료_ID가_없으면_빈_목록을_반환한다(tmp_path):
     controller.register_sample(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
 
     assert controller.duplicate_sample_ids() == []
+
+
+def test_컨트롤러의_시료_검색은_레지스트리에_위임한다(tmp_path):
+    path = tmp_path / "samples.json"
+    controller = SampleController(SampleRegistry(), SampleRepository(path))
+    controller.register_sample(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
+    controller.register_sample(Sample("S-002", "GaN 에피택셜-4인치", 0.3, 0.78, 220))
+
+    result = controller.search_samples("웨이퍼")
+
+    assert [s.sample_id for s in result] == ["S-001"]
