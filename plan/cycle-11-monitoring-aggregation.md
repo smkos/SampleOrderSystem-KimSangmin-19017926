@@ -3,7 +3,7 @@
 # Cycle 11 — 모니터링 집계 (상태별 주문 수, 재고 상태 라벨) (GREEN 완료)
 
 **이전 사이클**: [Cycle 10 — 출고 처리 (CONFIRMED → RELEASE)](cycle-10-order-release.md)
-**다음 사이클**: 아직 계획되지 않음
+**다음 사이클**: [Cycle 12 — 주문/생산 컨트롤러 영속화 연동](cycle-12-order-controller-persistence.md)
 
 ## 지금까지의 진행 상황 (컨텍스트)
 
