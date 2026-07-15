@@ -1,0 +1,93 @@
+[← PLAN.md 인덱스로 돌아가기](../PLAN.md)
+
+# Cycle 3 — 시료 컨트롤러 연동 (RED 검토 대기)
+
+**이전 사이클**: [Cycle 2 — 시료 영속화](cycle-02-sample-persistence.md)
+**다음 사이클**: 아직 계획되지 않음
+
+## 지금까지의 진행 상황 (컨텍스트)
+
+Cycle 1에서 `Sample` 데이터 클래스와 인메모리 `SampleRegistry`(등록, 중복/공백 이름 검증)를
+구현했다. Cycle 2에서 `storage/sample_repository.py`의 `SampleRepository`로 시료 목록을
+`samples.json`에 원자적으로 저장/로드하고 동시성 충돌을 감지하는 로직을 구현했다. 하지만 두
+모듈은 아직 서로 연결되어 있지 않다 — `SampleRegistry`에 등록해도 파일에 저장되지 않고,
+애플리케이션을 다시 시작해도 `samples.json`에 저장된 내용이 `SampleRegistry`에 자동으로
+채워지지 않는다. 이번 사이클은 `SPEC.md` §2에 정의된 `controller/sample_controller.py`의
+`SampleController`로 이 둘을 연결한다.
+
+## 목표
+
+`PRD.md` §6.1(시료 관리)의 "시료 등록" 기능이 실제로 영속화되도록, `SampleController`가
+시작 시 저장소에서 시료 목록을 불러와 레지스트리를 채우고, 새 시료 등록이 성공하면 그 결과를
+다시 저장소에 저장하는 최소 동작을 정의한다 (`SPEC.md` §2 모듈 구조 근거).
+
+## 이번 사이클에서 다룰 범위
+
+- `controller/sample_controller.py`: `SampleController`
+  - 생성 시 `SampleRegistry`와 `SampleRepository`를 주입받는다 (의존성 주입).
+  - 생성 시점에 저장소의 `load()` 결과로 레지스트리를 채운다 (재시작 시 기존 시료 복원).
+  - `register_sample(sample: Sample)`: `SampleRegistry.register()`를 호출해 등록에 성공하면,
+    레지스트리의 전체 목록을 저장소에 `save()` 한다.
+  - `SampleRegistry.register()`가 검증 실패로 `ValueError`를 던지면 저장소에는 아무것도
+    저장하지 않는다 (등록 실패 시 파일 변경 없음).
+  - `list_samples()`: 레지스트리의 현재 목록을 그대로 반환한다 (조회 메뉴가 쓸 최소 통로).
+
+## 이번 사이클에서 다루지 않는 것 (범위 초과 방지)
+
+- 이름 등 속성으로 시료를 검색하는 기능(PRD §6.1 "시료 검색") — 별도 사이클.
+- `view/console_view.py`, 실제 메뉴 입출력/사용자 입력 처리 — 별도 사이클.
+- `Order` 관련 기능(주문 접수/승인/거절/생산/출고, `order_controller.py` 등) — 범위 밖.
+- `SampleRepository.save()`가 `ConflictError`를 던지는 상황에서 컨트롤러가 이를 사용자에게
+  어떻게 안내할지(재시도 유도 등)는 View 연동 사이클에서 다룬다. 이번 사이클은 예외가 그대로
+  전파되는지만 확인한다.
+
+## Mock 사용 범위 (SPEC.md §6 기준)
+
+- `controller/`는 "내부 협력" 계층이므로 `SampleRegistry`, `SampleRepository`를 실제 객체로
+  조합해 테스트한다 (mock 사용 안 함).
+- `SampleRepository`는 파일시스템이 외부 경계이지만, Cycle 2에서 이미 `tmp_path` 기반 실제
+  파일 I/O로 정상 경로가 검증되었으므로, 이번 컨트롤러 테스트에서도 동일하게 `tmp_path`로
+  생성한 실제 `SampleRepository` 인스턴스를 사용한다 (파일시스템 mock 불필요).
+
+## 작성할 실패 테스트 (예시)
+
+```python
+def test_생성시_저장소의_기존_시료를_레지스트리에_불러온다(tmp_path):
+    path = tmp_path / "samples.json"
+    seed_repo = SampleRepository(path)
+    seed_repo.save([Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480)])
+
+    controller = SampleController(SampleRegistry(), SampleRepository(path))
+
+    assert [s.sample_id for s in controller.list_samples()] == ["S-001"]
+
+
+def test_시료_등록에_성공하면_저장소에도_반영된다(tmp_path):
+    path = tmp_path / "samples.json"
+    controller = SampleController(SampleRegistry(), SampleRepository(path))
+
+    controller.register_sample(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
+
+    reloaded = SampleRepository(path).load()
+    assert [s.sample_id for s in reloaded] == ["S-001"]
+
+
+def test_등록_검증에_실패하면_저장소를_변경하지_않는다(tmp_path):
+    path = tmp_path / "samples.json"
+    controller = SampleController(SampleRegistry(), SampleRepository(path))
+    controller.register_sample(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
+
+    with pytest.raises(ValueError):
+        controller.register_sample(Sample("S-001", "중복된 ID", 0.3, 0.9, 100))
+
+    reloaded = SampleRepository(path).load()
+    assert len(reloaded) == 1  # 실패 이전 상태 그대로 유지
+```
+
+## 검토 요청
+
+이 목표/범위로 RED 단계를 진행해도 될지 검토 부탁드립니다.
+
+---
+
+**다음 사이클**: 아직 계획되지 않음
