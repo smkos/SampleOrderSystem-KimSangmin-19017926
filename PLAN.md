@@ -13,4 +13,5 @@
 
 | Cycle | 기능 | 상태 | 파일 |
 |-------|------|------|------|
-| 1 | 시료 등록 | RED (검토 대기) | [plan/cycle-01-sample-registration.md](plan/cycle-01-sample-registration.md) |
+| 1 | 시료 등록 | GREEN 완료 | [plan/cycle-01-sample-registration.md](plan/cycle-01-sample-registration.md) |
+| 2 | 시료 영속화 | GREEN 완료 | [plan/cycle-02-sample-persistence.md](plan/cycle-02-sample-persistence.md) |

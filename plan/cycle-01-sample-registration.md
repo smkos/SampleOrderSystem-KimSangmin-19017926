@@ -1,9 +1,15 @@
 [← PLAN.md 인덱스로 돌아가기](../PLAN.md)
 
-# Cycle 1 — 시료 등록 (RED)
+# Cycle 1 — 시료 등록 (GREEN 완료)
 
 **이전 사이클**: 없음 (첫 사이클)
-**다음 사이클**: 아직 계획되지 않음
+**다음 사이클**: [Cycle 2 — 시료 영속화](cycle-02-sample-persistence.md)
+
+## 완료 요약
+
+`model/sample.py`(`Sample`)와 `model/sample_registry.py`(`SampleRegistry`)를 추가해 인메모리
+등록·중복 ID 거부·공백 이름 거부를 구현했다. `tests/test_sample_registry.py`의 3개 테스트가
+모두 통과한다. JSON 영속화, 조회/검색 메뉴, View/Controller 연동은 다음 사이클들로 넘긴다.
 
 ## 지금까지의 진행 상황 (컨텍스트)
 
@@ -52,11 +58,10 @@ def test_공백만_있는_이름은_등록을_거부한다():
         registry.register(Sample("S-002", "   ", 0.3, 0.9, 100))
 ```
 
-## 검토 요청
+## 검토 요청 (완료됨)
 
-위 목표와 테스트 범위로 RED 단계를 진행해도 될지 검토 부탁드립니다. 승인해 주시면 실패하는
-테스트를 작성하고 실패하는 것을 확인한 뒤 다시 공유하겠습니다.
+RED/GREEN 모두 검토·승인되어 커밋되었다.
 
 ---
 
-**다음 사이클**: 아직 계획되지 않음
+**다음 사이클**: [Cycle 2 — 시료 영속화](cycle-02-sample-persistence.md)
