@@ -28,16 +28,26 @@ def test_이름에_검색어가_포함된_시료만_반환한다():
     registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
     registry.register(Sample("S-002", "GaN 에피택셜-4인치", 0.3, 0.78, 220))
 
-    result = registry.find_by_name("웨이퍼")
+    result = registry.search("웨이퍼")
 
     assert [s.sample_id for s in result] == ["S-001"]
+
+
+def test_시료_ID에_검색어가_포함된_시료도_반환한다():
+    registry = SampleRegistry()
+    registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
+    registry.register(Sample("S-002", "GaN 에피택셜-4인치", 0.3, 0.78, 220))
+
+    result = registry.search("S-002")
+
+    assert [s.sample_id for s in result] == ["S-002"]
 
 
 def test_검색어가_대소문자를_구분하지_않는다():
     registry = SampleRegistry()
     registry.register(Sample("S-002", "GaN 에피택셜-4인치", 0.3, 0.78, 220))
 
-    result = registry.find_by_name("gan")
+    result = registry.search("gan")
 
     assert [s.sample_id for s in result] == ["S-002"]
 
@@ -46,11 +56,11 @@ def test_일치하는_시료가_없으면_빈_목록을_반환한다():
     registry = SampleRegistry()
     registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
 
-    assert registry.find_by_name("존재하지않음") == []
+    assert registry.search("존재하지않음") == []
 
 
 def test_공백만_있는_검색어는_빈_목록을_반환한다():
     registry = SampleRegistry()
     registry.register(Sample("S-001", "실리콘 웨이퍼-8인치", 0.5, 0.92, 480))
 
-    assert registry.find_by_name("   ") == []
+    assert registry.search("   ") == []
