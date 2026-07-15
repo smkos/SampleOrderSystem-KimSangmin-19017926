@@ -96,11 +96,16 @@ storage/
 - **총 생산 시간(분)** = `avg_production_time_min * 실 생산량`
 - **재고 상태 라벨** (모니터링): `stock_qty == 0` → 고갈, `stock_qty < 미승인 주문 총수량` → 부족, 그 외 → 여유
 - **생산 큐 정렬**: `PRODUCING` 상태 주문을 `created_at` 오름차순(FIFO)으로 정렬
+- **승인 시 재고 반영**: `RESERVED → CONFIRMED` 전이(재고 충분 시 즉시 승인) 시, 그 순간 주문
+  수량(`quantity`)만큼 `Sample.stock_qty`가 즉시 예약(감소)된다 (`SampleRegistry.decrease_stock`).
+  재고 부족으로 `RESERVED → PRODUCING`으로 전환되는 경우 재고는 변경되지 않는다.
 - **생산 완료 시 재고 반영**: `PRODUCING → CONFIRMED` 전이(생산 완료 처리) 시, 그 시점에 재계산한
-  실 생산량만큼 `Sample.stock_qty`가 증가한다 (`SampleRegistry.increase_stock`).
-- **출고 시 재고 반영**: `CONFIRMED → RELEASE` 전이(출고 처리) 시, `Sample.stock_qty`가 주문
-  수량(`quantity`)만큼 감소한다 (`SampleRegistry.decrease_stock`). 재고가 부족하면(감소 후
-  `stock_qty`가 0 미만이 되면) 출고를 거부하고 상태·재고 모두 변경하지 않는다.
+  실 생산량만큼 `Sample.stock_qty`가 먼저 증가한 뒤(`SampleRegistry.increase_stock`), 곧바로
+  해당 주문 수량만큼 다시 예약(감소)된다(`SampleRegistry.decrease_stock`) — 순증가량은
+  `실 생산량 - 주문 수량`이며, 실 생산량이 항상 부족분 이상이므로 이 값은 0 이상이다.
+- **출고 시 재고 반영**: `CONFIRMED → RELEASE` 전이(출고 처리) 시, 재고는 확인하거나 변경하지
+  않는다 — 이미 `CONFIRMED` 전이 시점(승인 또는 생산완료)에 해당 주문 몫이 예약되어 있으므로,
+  출고는 순수한 상태 전이다.
 
 ## 5. 에러/검증 규칙
 
