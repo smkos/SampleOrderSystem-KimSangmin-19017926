@@ -1,6 +1,6 @@
 [← PLAN.md 인덱스로 돌아가기](../PLAN.md)
 
-# Cycle 18 — 더미 주문(Order) 데이터 생성기 (`DummyDataGenerator_PoC` 이식, 로드맵 확장)
+# Cycle 18 — 더미 주문(Order) 데이터 생성기 (`DummyDataGenerator_PoC` 이식, 로드맵 확장) (GREEN 완료)
 
 **이전 사이클**: [Cycle 17 — 더미 시료(Sample) 데이터 생성기](cycle-17-dummy-sample-generator.md)
 **다음 사이클**: 아직 없음 (저장 wrapper, 콘솔 메뉴 연동 등은 이후 사이클에서 새로 계획한다 —
@@ -182,9 +182,17 @@ def test_반환값은_sample_id_customer_name_quantity_키만_가진다():
     assert set(result.keys()) == {"sample_id", "customer_name", "quantity"}
 ```
 
-## 검토 요청
+## 진행 결과
 
-위 목표/범위(특히 설계 판단 1번 — Cycle 17의 `Sample`과 달리 완성된 `Order` 객체가 아니라
-`dict` 입력값만 반환하는 판단, 설계 판단 2번 — `existing_samples`가 비어 있으면 `ValueError`를
-던지는 판단, 설계 판단 5번 — 저장 wrapper/콘솔 메뉴 연동을 다음 사이클로 미루는 판단)으로 RED
-단계를 진행해도 될지 검토 부탁드립니다.
+- **계획** (`971871a`): 위 설계 판단대로 범위를 확정했다.
+- **RED** (`3124266`): 계획 문서 예시 5개 테스트를 `tests/test_dummy_data_generator.py`에 그대로
+  추가해 실패를 확인했다(`generate_dummy_order_input` 미구현으로 `ImportError`).
+- **GREEN** (`27b4e4e`): `devtools/dummy_data_generator.py`에 `_CUSTOMER_NAME_CANDIDATES`
+  상수와 `generate_dummy_order_input(existing_samples, rng=None)`을 구현했다. 설계 판단
+  1~5번 모두 이견 없이 채택됐다.
+- **최종 결과**: `tests/test_dummy_data_generator.py`가 10개(Cycle 17의 5개 + 이번 5개)로
+  늘어 모두 통과하며, 전체 테스트 147개가 회귀 없이 통과한다.
+- **범위 준수**: 계획대로 복수형 함수(`generate_dummy_order_inputs`), `OrderController`/저장소
+  등록 wrapper, 콘솔 View 메뉴 연동은 포함하지 않았다. `model/*`, `controller/*`, `view/*`,
+  `storage/*`, `main.py`는 수정되지 않았다.
+- verify-agent 독립 검증은 생략했다(프로젝트 막바지 진행 속도를 위해 마지막 사이클까지 생략).

@@ -382,3 +382,16 @@ def test_생산완료_처리_결과를_출력한다(capsys):
 - **참고 — verify-agent 독립 검증 생략**: Cycle 12~14에 이어 이번 사이클도 verify-agent 독립
   검증을 생략했다(사람 파트너가 프로젝트 막바지 진행 속도를 위해 마지막 사이클까지 생략하고
   한 번에 몰아서 검증하기로 결정함). 이 검증은 나중에 몰아서 수행될 예정이다.
+
+**추가 보완** (Cycle 18 이후, 계획 문서 없는 애드혹 수정 — RED `0b0cc67` → GREEN `8ea066b`):
+사람 파트너가 `python main.py`를 직접 실행해보다가, "모니터링 → 재고량 확인"이 라벨(여유/부족/
+고갈)만 보여주고 실제 재고 수량은 보여주지 않는다는 점을 발견했다. `PRD.md` §6.4는 원래부터
+"시료별 현재 재고 수량과 ... 상태 표기"를 요구하고 있었으므로, 이는 범위 이탈이 아니라 그동안
+누락되어 있던 PRD 요구사항을 뒤늦게 충족시킨 것이다. `MonitoringController.stock_status_by_sample()`의
+반환 타입을 `dict[str, str]`(`{sample_id: 라벨}`)에서 `dict[str, dict]`(`{sample_id: {"label":
+str, "stock_qty": int}}`)로 바꾸고, `ConsoleView.show_stock_status()`가
+`"S-001 | 여유 (재고: 480)"` 형식으로 출력하도록 수정했다. `model/monitoring.py`의
+`calculate_stock_status_label()` 자체는 변경하지 않았다. 이 반환 타입 변경은 Cycle 11이 원래
+정의한 형태(`dict[str, str]`)와 다르므로, `plan/cycle-11-monitoring-aggregation.md`에도
+상호 참조 각주를 남겼다. 관련 테스트(`test_시료별_재고상태_라벨을_계산한다`,
+`test_재고_상태를_출력한다`) assertion을 갱신했고, 전체 테스트 142개가 회귀 없이 통과했다.

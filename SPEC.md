@@ -66,7 +66,7 @@ main.py                   # 진입점 — 저장소 경로 결정, 4개 Controll
                            # 서로 공유해야 한다(거짓 ConflictError 방지, Cycle 12/16 확정).
 devtools/
   dummy_data_generator.py # 정식 MVC 계층이 아닌 개발/테스트 편의 도구. 시드 주입 가능한
-                           # 순수 함수로 더미 Sample을 생성한다.
+                           # 순수 함수로 더미 Sample과 더미 Order 입력값(dict)을 생성한다.
 ```
 
 - Model은 입출력을 모르고, View는 Controller가 넘긴 값만 표시하며, Controller가 Model과
