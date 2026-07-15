@@ -53,3 +53,62 @@ def test_수량이_0이하이면_거부한다(mocker):
 
     with pytest.raises(ValueError):
         registry.create("S-001", "삼성전자 파운드리", 0)
+
+
+def test_재고가_충분하면_승인시_CONFIRMED로_전환된다(mocker):
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 32, 15))
+    registry = OrderRegistry()
+    order = registry.create("S-001", "삼성전자 파운드리", 200)
+
+    approved = registry.approve(order.order_id, stock_sufficient=True)
+
+    assert approved.status == OrderStatus.CONFIRMED
+
+
+def test_재고가_부족하면_승인시_PRODUCING으로_전환된다(mocker):
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 32, 15))
+    registry = OrderRegistry()
+    order = registry.create("S-001", "삼성전자 파운드리", 200)
+
+    approved = registry.approve(order.order_id, stock_sufficient=False)
+
+    assert approved.status == OrderStatus.PRODUCING
+
+
+def test_거절하면_REJECTED로_전환된다(mocker):
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 32, 15))
+    registry = OrderRegistry()
+    order = registry.create("S-001", "삼성전자 파운드리", 200)
+
+    rejected = registry.reject(order.order_id)
+
+    assert rejected.status == OrderStatus.REJECTED
+
+
+def test_RESERVED가_아닌_주문을_승인하면_예외가_발생하고_상태가_바뀌지_않는다(mocker):
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 32, 15))
+    registry = OrderRegistry()
+    order = registry.create("S-001", "삼성전자 파운드리", 200)
+    registry.reject(order.order_id)
+
+    with pytest.raises(ValueError):
+        registry.approve(order.order_id, stock_sufficient=True)
+    assert registry.get(order.order_id).status == OrderStatus.REJECTED
+
+
+def test_RESERVED가_아닌_주문을_거절하면_예외가_발생하고_상태가_바뀌지_않는다(mocker):
+    _mock_now(mocker, datetime_module.datetime(2026, 7, 15, 9, 32, 15))
+    registry = OrderRegistry()
+    order = registry.create("S-001", "삼성전자 파운드리", 200)
+    registry.approve(order.order_id, stock_sufficient=True)
+
+    with pytest.raises(ValueError):
+        registry.reject(order.order_id)
+    assert registry.get(order.order_id).status == OrderStatus.CONFIRMED
+
+
+def test_존재하지_않는_주문ID를_승인하면_예외가_발생한다():
+    registry = OrderRegistry()
+
+    with pytest.raises(ValueError):
+        registry.approve("ORD-20260715-9999", stock_sufficient=True)
