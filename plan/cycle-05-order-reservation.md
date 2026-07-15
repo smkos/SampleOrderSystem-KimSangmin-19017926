@@ -1,9 +1,9 @@
 [← PLAN.md 인덱스로 돌아가기](../PLAN.md)
 
-# Cycle 5 — 주문 모델 + 접수(RESERVED)
+# Cycle 5 — 주문 모델 + 접수(RESERVED) (GREEN 완료)
 
 **이전 사이클**: [Cycle 4 — 시료 검색](cycle-04-sample-search.md)
-**다음 사이클**: 아직 계획되지 않음
+**다음 사이클**: [Cycle 6 — 주문 영속화 (`OrderRepository`)](cycle-06-order-persistence.md)
 
 ## 지금까지의 진행 상황 (컨텍스트)
 
@@ -223,12 +223,30 @@ def test_등록된_시료ID면_RESERVED_상태의_주문이_생성된다(mocker)
     assert order.status == OrderStatus.RESERVED
 ```
 
-## 검토 요청
+## 진행 결과
 
-이 목표/범위로 RED 단계를 진행해도 될지 검토 부탁드립니다. 특히 위 "설계 판단" 3, 4번
-(`OrderController`가 `SampleRegistry`를 직접 참조하는 구조, `datetime` 모듈 mock 방식)에
-이견이 없는지 확인 부탁드립니다.
+- **계획** (`6e1f95b` Cycle 5 계획: 주문 모델 + 접수(RESERVED)): 위 "설계 판단" 1~4번
+  (`Order`/`OrderStatus` 데이터 전용 모델, `OrderRegistry.create()`의 검증·채번 책임,
+  `OrderController`가 `SampleController`가 아닌 `SampleRegistry`를 직접 참조하는 구조,
+  `datetime` 모듈 mock 방식)을 사람 파트너 검토를 거쳐 이견 없이 그대로 채택했다.
+- **RED** (`bc44c95` Cycle 5 RED: 주문 모델 + 접수(RESERVED) 실패 테스트 작성): 위 예시
+  테스트대로 `tests/test_order_registry.py`(5개), `tests/test_order_controller.py`(2개)를
+  작성해 실패를 확인했다.
+- **GREEN** (`14887b6` Cycle 5 GREEN: 주문 모델 + 접수(RESERVED) 최소 구현):
+  `model/order.py`(`Order`, `OrderStatus`), `model/order_registry.py`
+  (`OrderRegistry.create()` — 고객명 공백/수량 0 이하 검증, `ORD-YYYYMMDD-NNNN` 형식 ID
+  채번(같은 날짜 접두사 기준), RESERVED 고정, `list_all()`),
+  `controller/order_controller.py`(`OrderController.create_order()` — 존재하지 않는
+  `sample_id` 거부 후 `OrderRegistry.create()`에 위임)를 계획대로 구현했다.
+- **verify-agent 독립 검증**: `order_id` 채번 로직(날짜 접두사 `startswith` 매칭)이 다른
+  날짜의 주문과 혼선 없이 정확한지, `datetime` mock이 계획대로 작동하는지까지 확인했고
+  문제 없음을 확인했다.
+- **최종 결과**: `tests/test_order_registry.py`(5개) + `tests/test_order_controller.py`(2개)
+  = 7개 테스트가 모두 통과하며, Cycle 1~4를 포함한 전체 테스트 26개가 회귀 없이 통과한다.
+- **범위 준수 확인**: 계획대로 `storage/order_repository.py`, 주문 승인/거절/생산/출고
+  로직, `view/` 관련 코드는 포함하지 않았다. `model/sample.py`, `model/sample_registry.py`,
+  `storage/sample_repository.py`, `controller/sample_controller.py`는 수정되지 않았다.
 
 ---
 
-**다음 사이클**: 아직 계획되지 않음
+**다음 사이클**: [Cycle 6 — 주문 영속화 (`OrderRepository`)](cycle-06-order-persistence.md)
