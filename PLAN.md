@@ -30,6 +30,7 @@
 | 15 | 모니터링 메뉴 + 생산 라인 메뉴 (현황/대기 큐/생산완료 처리) | GREEN 완료 | [plan/cycle-15-console-view-monitoring-production-menus.md](plan/cycle-15-console-view-monitoring-production-menus.md) |
 | 16 | 출고 처리 메뉴 + `main.py` 진입점 (전체 조립, 원래 계획상 마지막 사이클) | GREEN 완료 | [plan/cycle-16-order-release-menu-main-entrypoint.md](plan/cycle-16-order-release-menu-main-entrypoint.md) |
 | 17 | 더미 시료(Sample) 데이터 생성기 (`DummyDataGenerator_PoC` 이식) | GREEN 완료 | [plan/cycle-17-dummy-sample-generator.md](plan/cycle-17-dummy-sample-generator.md) |
+| 18 | 더미 주문(Order) 데이터 생성기 | RED (검토 대기) | [plan/cycle-18-dummy-order-generator.md](plan/cycle-18-dummy-order-generator.md) |
 
 > **로드맵 확장**: Cycle 16이 `PRD.md`/`SPEC.md` 기능 명세 기준으로는 원래 마지막 사이클이었으나,
 > 사람 파트너의 요청으로 테스트/데모용 더미 데이터 생성기(`CLAUDE.md`가 재사용 대상으로 명시한

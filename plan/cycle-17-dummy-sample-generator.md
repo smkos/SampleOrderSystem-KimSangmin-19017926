@@ -3,8 +3,9 @@
 # Cycle 17 — 더미 시료(Sample) 데이터 생성기 (`DummyDataGenerator_PoC` 이식, 로드맵 확장) (GREEN 완료)
 
 **이전 사이클**: [Cycle 16 — 출고 처리 메뉴 + `main.py` 진입점](cycle-16-order-release-menu-main-entrypoint.md)
-**다음 사이클**: 아직 없음 (더미 주문 생성기, 저장 wrapper, 콘솔 메뉴 연동 등은 이후 사이클에서
-새로 계획한다 — 이번 사이클의 "다루지 않는 것" 참고)
+**다음 사이클**: [Cycle 18 — 더미 주문(Order) 데이터 생성기](cycle-18-dummy-order-generator.md)
+(저장 wrapper, 콘솔 메뉴 연동 등은 그 이후 사이클에서 새로 계획한다 — 이번 사이클의 "다루지
+않는 것" 참고)
 
 ## 지금까지의 진행 상황 (컨텍스트)
 
