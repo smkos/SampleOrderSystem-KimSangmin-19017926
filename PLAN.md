@@ -21,7 +21,7 @@
 | 6 | 주문 영속화 (`OrderRepository`) | GREEN 완료 | [plan/cycle-06-order-persistence.md](plan/cycle-06-order-persistence.md) |
 | 7 | 주문 승인/거절 (재고 확인 → CONFIRMED/PRODUCING/REJECTED) | GREEN 완료 | [plan/cycle-07-order-approval.md](plan/cycle-07-order-approval.md) |
 | 8 | 생산 큐 계산 로직 (부족분/실생산량/총생산시간, FIFO) | GREEN 완료 | [plan/cycle-08-production-queue.md](plan/cycle-08-production-queue.md) |
-| 9 | 생산 완료 처리 (PRODUCING → CONFIRMED) | 미계획 | - |
+| 9 | 생산 완료 처리 (PRODUCING → CONFIRMED) | RED (검토 대기) | [plan/cycle-09-production-completion.md](plan/cycle-09-production-completion.md) |
 | 10 | 출고 처리 (CONFIRMED → RELEASE) | 미계획 | - |
 | 11 | 모니터링 집계 | 미계획 | - |
 | 12 | 콘솔 View/Controller 통합 (전체 메뉴 흐름) | 미계획 | - |
