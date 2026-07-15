@@ -20,4 +20,5 @@ class ProductionController:
         shortage = production_queue.calculate_shortage(order.quantity, sample.stock_qty)
         actual_qty = production_queue.calculate_actual_production_qty(shortage, sample.yield_rate)
         self._sample_registry.increase_stock(sample.sample_id, actual_qty)
+        self._sample_registry.decrease_stock(sample.sample_id, order.quantity)
         return order
