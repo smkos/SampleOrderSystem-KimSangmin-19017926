@@ -3,8 +3,7 @@
 # Cycle 15 — 콘솔 View: 모니터링 메뉴 + 생산 라인 메뉴
 
 **이전 사이클**: [Cycle 14 — 콘솔 View: 시료 주문 메뉴 + 주문 승인/거절 메뉴](cycle-14-console-view-order-menus.md)
-**다음 사이클**: 아직 계획되지 않음 (예정: Cycle 16 — 출고 처리 메뉴 + `main.py` 진입점, 프로젝트의
-마지막 사이클)
+**다음 사이클**: [Cycle 16 — 출고 처리 메뉴 + `main.py` 진입점 (프로젝트의 마지막 사이클)](cycle-16-order-release-menu-main-entrypoint.md)
 
 ## 지금까지의 진행 상황 (컨텍스트)
 
