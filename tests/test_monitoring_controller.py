@@ -51,5 +51,5 @@ def test_시료별_재고상태_라벨을_계산한다(mocker):
     controller = MonitoringController(order_registry, sample_registry)
     labels = controller.stock_status_by_sample()
 
-    assert labels["S-001"] == "부족"  # 재고 50 < 미승인 100
-    assert labels["S-002"] == "고갈"  # 재고 0
+    assert labels["S-001"] == {"label": "부족", "stock_qty": 50}  # 재고 50 < 미승인 100
+    assert labels["S-002"] == {"label": "고갈", "stock_qty": 0}  # 재고 0

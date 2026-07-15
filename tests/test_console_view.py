@@ -268,13 +268,17 @@ def test_주문_상태별_개수를_출력한다(capsys):
 
 def test_재고_상태를_출력한다(capsys):
     view = ConsoleView()
-    labels = {"S-001": "여유", "S-002": "부족", "S-003": "고갈"}
+    labels = {
+        "S-001": {"label": "여유", "stock_qty": 480},
+        "S-002": {"label": "부족", "stock_qty": 50},
+        "S-003": {"label": "고갈", "stock_qty": 0},
+    }
 
     view.show_stock_status(labels)
 
     out = capsys.readouterr().out
-    assert "S-001" in out and "여유" in out
-    assert "S-003" in out and "고갈" in out
+    assert "S-001 | 여유 (재고: 480)" in out
+    assert "S-003 | 고갈 (재고: 0)" in out
 
 
 def test_생산_라인_하위_메뉴를_출력한다(capsys):
