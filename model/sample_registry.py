@@ -19,6 +19,15 @@ class SampleRegistry:
     def list_all(self) -> list[Sample]:
         return list(self._samples)
 
+    def increase_stock(self, sample_id: str, qty: int) -> Sample:
+        target = next((sample for sample in self._samples if sample.sample_id == sample_id), None)
+        if target is None:
+            raise ValueError(f"존재하지 않는 시료 ID입니다: {sample_id}")
+        if qty < 0:
+            raise ValueError(f"증가시킬 재고 수량은 0 이상이어야 합니다: {qty}")
+        target.stock_qty += qty
+        return target
+
     def search(self, keyword: str) -> list[Sample]:
         if not keyword.strip():
             return []

@@ -50,3 +50,10 @@ class OrderRegistry:
             raise ValueError(f"RESERVED 상태의 주문만 거절할 수 있습니다: {order_id}")
         order.status = OrderStatus.REJECTED
         return order
+
+    def complete_production(self, order_id: str) -> Order:
+        order = self.get(order_id)
+        if order.status != OrderStatus.PRODUCING:
+            raise ValueError(f"PRODUCING 상태의 주문만 생산완료 처리할 수 있습니다: {order_id}")
+        order.status = OrderStatus.CONFIRMED
+        return order
