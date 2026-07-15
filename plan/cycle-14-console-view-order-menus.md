@@ -1,9 +1,9 @@
 [← PLAN.md 인덱스로 돌아가기](../PLAN.md)
 
-# Cycle 14 — 콘솔 View: 시료 주문 메뉴 + 주문 승인/거절 메뉴
+# Cycle 14 — 콘솔 View: 시료 주문 메뉴 + 주문 승인/거절 메뉴 (GREEN 완료)
 
 **이전 사이클**: [Cycle 13 — 콘솔 View 골격 + 메인 메뉴 요약 정보 + 시료 관리 메뉴](cycle-13-console-view-sample-menu.md)
-**다음 사이클**: 아직 계획되지 않음 (예정: Cycle 15 — 모니터링 메뉴 + 생산 라인 메뉴)
+**다음 사이클**: [Cycle 15 — 콘솔 View: 모니터링 메뉴 + 생산 라인 메뉴](cycle-15-console-view-monitoring-production-menus.md)
 
 ## 지금까지의 진행 상황 (컨텍스트)
 
@@ -261,8 +261,24 @@ def test_거절_처리_결과를_출력한다(capsys):
 > 전환된 경우의 표시)에 대해서도 동일한 방식(단일 동작 검증, mock 최소화)으로 테스트를
 > 보강한다.
 
-## 검토 요청
+## 진행 결과
 
-위 목표/범위(특히 설계 판단 1번 — "접수된 주문 목록" 필터링을 View가 아니라 이후 Cycle
-16에서 결정하도록 보류하는 판단, 설계 판단 2~4번 — 승인/거절 선택 입력의 해석 보류, 결과 표시
-메서드 구성, 하위 메뉴 화면 유무 기준)로 RED 단계를 진행해도 될지 검토 부탁드립니다.
+- **RED** (`b90bf86` Cycle 14 RED: 시료 주문/승인·거절 메뉴 View 실패 테스트 작성): 위 설계
+  판단 1~4번(접수된 주문 목록 필터링 위치 보류, 승인/거절 선택 입력의 해석 보류, 결과 표시
+  메서드 구성, 시료 주문 메뉴에 하위 메뉴를 두지 않는 기준)을 사람 파트너 검토를 거쳐 이견 없이
+  채택했다. `tests/test_console_view.py`에 신규 테스트를 추가해 실패를 확인했다.
+- **GREEN** (`7051972` Cycle 14 GREEN: 시료 주문/승인·거절 메뉴 View 최소 구현): 계획대로
+  `view/console_view.py`에 `get_new_order_input`, `show_order_created`,
+  `show_pending_orders`, `get_order_id_to_process`, `get_approval_decision`,
+  `show_order_approved`, `show_order_rejected`를 구현했다. `order.status`(enum)를 표시할 때
+  `order.status.value`(문자열)를 사용해 "RESERVED"/"CONFIRMED" 등 텍스트로 노출되도록
+  했다(계획 문서에 명시되지 않은 세부 구현 선택이지만 표시 요건 충족을 위한 최소 구현이다).
+- **최종 결과**: `tests/test_console_view.py`의 9개 신규 테스트(`PRODUCING` 케이스 포함)가 모두
+  통과하며, 전체 테스트 105개가 회귀 없이 통과한다.
+- **범위 준수 확인**: 계획대로 `ConsoleView`는 여전히 어떤 Controller/Model도 import하지
+  않는다(순수 입출력만 담당). `main.py`, 접수된 주문 필터링 로직의 실제 위치, 모니터링/생산
+  라인/출고 처리 메뉴, 사용자 입력값 검증, 승인/거절 선택 문자열을 실제 Controller 호출로
+  연결하는 분기 로직은 포함하지 않았다.
+- **참고 — verify-agent 독립 검증 생략**: Cycle 12~13에 이어 이번 사이클도 verify-agent 독립
+  검증을 생략했다(사람 파트너가 프로젝트 막바지 진행 속도를 위해 마지막 사이클까지 생략하고
+  한 번에 몰아서 검증하기로 결정함). 이 검증은 나중에 몰아서 수행될 예정이다.
